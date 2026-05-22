@@ -3,806 +3,737 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>扑克牌凑数 · 一行两列排行榜</title>
+    <title>扑克牌凑数 · 亲子对战（手动开始计时）</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: #eef2f5;
+            background: linear-gradient(145deg, #c8e0d4 0%, #b2cfc0 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Nunito', system-ui, -apple-system, 'Poppins', sans-serif;
-            margin: 0;
-            padding: 10px;
+            font-family: 'Segoe UI', 'Nunito', 'Poppins', system-ui, sans-serif;
+            padding: 16px;
         }
 
         .game-container {
-            background: #ffffff;
-            border-radius: 40px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-            padding: 16px 16px 22px;
-            max-width: 880px;
+            max-width: 800px;
             width: 100%;
-            border: 1px solid #eef2f6;
-            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(2px);
+            border-radius: 56px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px 18px 24px;
         }
 
+        .game-header {
+            margin-bottom: 20px;
+        }
         h1 {
-            text-align: center;
             font-size: 1.6rem;
-            margin: 0 0 10px 0;
-            color: #3b7c5e;
-            font-weight: 600;
+            background: linear-gradient(135deg, #2c6e4f, #569e7c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 12px;
         }
-
-        .top-bar {
+        .controls-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
             flex-wrap: wrap;
-        }
-        .difficulty-switch {
-            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
-            background: #f0f3f6;
-            padding: 4px 10px;
-            border-radius: 40px;
         }
-        .difficulty-btn {
-            background: #e8edf0;
+        .mode-group, .diff-group {
+            display: flex;
+            gap: 6px;
+            background: #eef3efcc;
+            padding: 4px 8px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+        .mode-btn, .diff-btn {
+            background: transparent;
             border: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 5px 14px;
-            border-radius: 28px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 40px;
             cursor: pointer;
-            color: #415a4e;
+            color: #3a5e4e;
+            transition: 0.1s;
+            white-space: nowrap;
         }
-        .difficulty-btn.active {
+        .mode-btn.active, .diff-btn.active {
             background: #699e7c;
             color: white;
+            box-shadow: 0 2px 6px rgba(105,158,124,0.3);
         }
-        .quiz-mode-btn {
-            background: #7caf7c;
+        .quiz-launch {
+            background: #ffb347;
             border: none;
             color: white;
             font-weight: 700;
-            font-size: 0.85rem;
             padding: 6px 18px;
             border-radius: 40px;
+            font-size: 0.85rem;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(124,175,124,0.3);
             white-space: nowrap;
+            transition: 0.1s;
         }
-        .quiz-mode-btn:active { transform: scale(0.96); }
-        .quiz-mode-btn.disabled-btn {
-            background: #a8bca8;
-            box-shadow: none;
-            cursor: not-allowed;
-            opacity: 0.8;
-        }
+        .quiz-launch:active { transform: scale(0.96); }
 
-        .target-section {
+        /* 单人区域 */
+        .single-area { display: block; }
+        .single-area.hide { display: none; }
+        .target-panel {
+            background: #efe2c9;
+            border-radius: 80px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            margin-bottom: 12px;
+            justify-content: space-between;
+            padding: 6px 20px;
+            margin: 10px 0;
         }
         .target-number {
-            background: #f2d9b0;
-            border-radius: 60px;
-            padding: 8px 28px;
             font-size: 1.8rem;
             font-weight: 800;
-            color: #3f2e1c;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 8px;
+            background: #fff2e0;
+            padding: 0 18px;
+            border-radius: 60px;
         }
-        .practice-skip-btn {
-            background: #bda27e;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 6px 18px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            width: 100%;
-            max-width: 180px;
-        }
-
-        .quiz-panel {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: #f9fbfd;
-            padding: 4px 12px;
-            border-radius: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-        .quiz-timer, .quiz-progress {
-            background: #eef2f0;
-            color: #2d4f3e;
-            padding: 4px 12px;
-            border-radius: 28px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        .skip-btn {
-            background: #c9aa7b;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 28px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .cards-area {
+        .cards-grid {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin: 12px 0 10px;
+            margin: 14px 0;
         }
         .card {
-            width: min(72px, 19vw);
-            height: min(96px, 26vw);
             background: #fffef7;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: min(70px, 19vw);
+            height: min(96px, 26vw);
+            border-radius: 18px;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: 800;
+            font-size: 1.6rem;
             color: #c7573a;
             cursor: pointer;
-            border: 1px solid #f1e4cf;
-            transition: 0.05s;
         }
-        .card.disabled-card {
-            opacity: 0.45;
-            filter: grayscale(0.2);
-            cursor: default;
-            background: #e8e5db;
-        }
-        .card-number {
-            font-size: 1.8rem;
-            font-weight: 800;
-        }
-        .card-suit {
-            font-size: 1.3rem;
-            margin-top: 2px;
-        }
-
-        .operator-circles {
+        .card.disabled { opacity: 0.5; background: #e9e5d8; cursor: default; }
+        .operator-row {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin: 8px 0 12px;
-            flex-wrap: wrap;
+            gap: 24px;
+            margin: 10px 0;
         }
         .op-circle {
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: #f2efe2;
-            border: 2px solid #d2dfca;
+            background: #f5efe2;
+            border: 2px solid #cbdcc2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.08s linear;
-            color: #4a6b56;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
-        .op-circle.active {
-            background: #699e7c;
-            border-color: #699e7c;
-            color: white;
-            transform: scale(0.96);
-            box-shadow: 0 2px 6px rgba(105,158,124,0.3);
+        .op-circle.active { background: #699e7c; color: white; transform: scale(0.94); }
+        .slots-area {
+            background: #fbf8ef;
+            border-radius: 48px;
+            padding: 12px;
+            margin: 12px 0;
         }
-        .op-circle:active { transform: scale(0.94); }
-        .op-pair {
-            display: flex;
-            gap: 16px;
-        }
-
-        .equation-area {
-            background: #fefcf5;
-            border-radius: 36px;
-            padding: 12px 10px;
-            margin-bottom: 12px;
-        }
-        .slots-container {
+        .slots-row {
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 8px;
             flex-wrap: wrap;
-            gap: 6px;
         }
         .slot {
-            background: #fef8ec;
-            width: min(72px, 19vw);
-            height: min(96px, 26vw);
-            border-radius: 18px;
-            border: 2px dashed #cdd9cc;
+            background: #fff6e6;
+            width: min(65px, 18vw);
+            height: min(90px, 25vw);
+            border-radius: 20px;
+            border: 2px dashed #b9cfae;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
+            font-size: 1.7rem;
+            font-weight: 700;
             cursor: pointer;
         }
-        .slot.filled {
-            background: #fff6e6;
-            border: 2px solid #bdd3b0;
-        }
-        .slot-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #4c6a57;
-        }
-        .operator-placeholder {
-            width: min(52px, 14vw);
-            height: min(52px, 14vw);
+        .slot.filled { border: 2px solid #8fb37c; background: #fffaf0; }
+        .op-place {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: #f9f5ea;
-            border: 2px dotted #cdd9cc;
+            background: #efeadb;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #699e7c;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            margin: 8px 0 10px;
+            font-size: 1.3rem;
         }
         .check-btn {
             background: #8fb792;
-            color: white;
+            width: 70%;
             border: none;
-            font-size: 1rem;
-            padding: 10px 24px;
-            border-radius: 48px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 80%;
-            max-width: 220px;
-        }
-        .check-btn:active { transform: scale(0.97); }
-
-        /* 消息反馈区域 */
-        .message-area {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 8px 16px;
+            padding: 10px;
             border-radius: 60px;
-            background: #f0f8ec;
-            color: #2d6a4f;
+            font-weight: 800;
+            color: white;
+            display: block;
+            margin: 8px auto;
+            cursor: pointer;
+        }
+
+        /* 双人对战区（儿童面板旋转180°） */
+        .versus-area { display: none; }
+        .versus-area.show { display: block; }
+        .round-bar {
+            background: #4c6e5b;
+            border-radius: 100px;
+            text-align: center;
+            padding: 8px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .versus-players { display: flex; flex-direction: column; gap: 28px; }
+        .player-panel {
+            background: rgba(255, 252, 240, 0.95);
+            border-radius: 44px;
+            padding: 16px 12px;
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
             transition: 0.2s;
         }
-        .message-area.error {
-            background: #ffe0e0;
-            color: #c0392b;
+        /* 儿童面板旋转180度（倒置手机看正常） */
+        .player-panel.top {
+            background: linear-gradient(120deg, #fff9e8, #fff2de);
+            border-left: 6px solid #f4b942;
+            transform: rotate(180deg);
         }
-        .message-area.success {
-            background: #d8f3dc;
-            color: #2d6a4f;
+        .player-panel.bottom {
+            background: linear-gradient(120deg, #f0f8ec, #eef3e6);
+            border-left: 6px solid #699e7c;
+            transform: rotate(0deg);
         }
-        .hide-message { display: none; }
-
-        /* 排行榜区域：一行两列 */
-        .rank-wrapper {
+        .player-header {
             display: flex;
-            gap: 16px;
-            margin-top: 14px;
-            margin-bottom: 8px;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            padding: 0 6px;
+        }
+        .player-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: #ffffffbb;
+            padding: 4px 16px;
+            border-radius: 40px;
+        }
+        .player-target {
+            background: #f3daac;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .player-stats {
+            display: flex;
+            gap: 12px;
+            background: #fff4e4;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+        .versus-cards {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .vcard {
+            background: white;
+            width: min(62px, 16vw);
+            height: min(84px, 23vw);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .vcard.disabled-vcard { opacity: 0.4; background: #e2ddd0; cursor: default; }
+        .versus-ops {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin: 10px 0;
+        }
+        .vop {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #f7efdc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #cfdfc4;
+        }
+        .vop.active { background: #699e7c; color: white; transform: scale(0.94); }
+        .versus-slots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
             flex-wrap: wrap;
         }
-        .rank-main {
-            flex: 2;
-            background: #fefcf5;
-            border-radius: 28px;
-            border: 1px solid #e8efea;
-            overflow: hidden;
-            min-width: 260px;
-        }
-        .rank-header {
-            padding: 12px 12px 6px;
-            background: #fafbf8;
-            border-bottom: 1px solid #e8efea;
-            text-align: center;
-        }
-        .rank-header h3 {
-            font-size: 0.9rem;
+        .vslot {
+            background: #fff4e4;
+            width: min(58px, 15vw);
+            height: min(78px, 21vw);
+            border-radius: 18px;
+            border: 2px dashed #b4caa5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #2c6e4f;
-            margin: 0;
+            cursor: pointer;
         }
-        .two-columns {
+        .vslot.filled { background: #fdefcf; border: 2px solid #8fb37c; }
+        .vop-place {
+            width: 44px;
+            height: 44px;
+            background: #e6dfcc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .versus-submit {
+            background: #ffa559;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: white;
+            width: 65%;
+            margin: 8px auto 0;
+            display: block;
+            cursor: pointer;
+        }
+        .versus-submit.disabled-submit {
+            background: #bbaa88;
+            cursor: not-allowed;
+        }
+        .wait-tip {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 6px;
+            color: #c2822e;
+        }
+        /* 开始对战按钮 - 红色醒目 */
+        .start-versus-btn {
+            background: #e34234;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            margin-top: 16px;
+            width: 100%;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s ease;
+        }
+        .start-versus-btn:active { transform: scale(0.96); }
+
+        /* 排行榜 - 强制两列布局 */
+        .rank-wrapper {
+            margin-top: 20px;
+            background: #fef6ea;
+            border-radius: 40px;
+            padding: 12px;
+        }
+        .rank-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            padding: 12px 10px;
-        }
-        .rank-col-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            gap: 10px;
+            width: 100%;
         }
         .rank-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            padding: 8px 12px;
+            background: white;
             border-radius: 40px;
-            border: 1px solid #eef3ef;
-        }
-        .rank-left { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex: 2; }
-        .rank-num { font-weight: 800; font-size: 0.9rem; min-width: 36px; color: #c9aa6b; }
-        .rank-num.gold { color: #f5b042; }
-        .rank-num.silver { color: #9bb7d4; }
-        .rank-num.bronze { color: #cd7f56; }
-        .rank-name { font-weight: 700; font-size: 0.8rem; color: #2c5a4a; }
-        .rank-class { background: #eef3ef; padding: 2px 10px; border-radius: 24px; font-size: 0.65rem; color: #45755e; }
-        .rank-stats { display: flex; gap: 12px; align-items: baseline; }
-        .rank-correct { background: #dcfce7; padding: 2px 10px; border-radius: 24px; font-weight: 700; font-size: 0.7rem; color: #2c6e4f; }
-        .rank-time { font-family: monospace; font-weight: 600; font-size: 0.7rem; color: #d97747; }
-        .empty-rank-placeholder { text-align: center; padding: 20px; color: #9fb7ab; font-size: 0.75rem; background: #ffffff; border-radius: 40px; border: 1px solid #eef3ef; }
-
-        .live-rank-col {
-            flex: 1;
-            min-width: 200px;
-        }
-        .live-rank-card {
-            background: #eef6f0;
-            border-radius: 28px;
-            padding: 14px 16px;
-            border-left: 5px solid #699e7c;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            height: 100%;
+            padding: 8px 10px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .live-rank-title {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: #2c6e4f;
-            margin-bottom: 10px;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            font-size: 0.75rem;
+            gap: 6px;
+            flex-wrap: wrap;
+            word-break: break-word;
         }
-        .live-rank-content {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #3a5a4a;
-            line-height: 1.4;
+        .rank-left {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 2;
         }
-        .live-rank-content span {
-            font-weight: 800;
-            color: #d97747;
-        }
-        .live-rank-note {
-            font-size: 0.65rem;
-            color: #8aa89a;
-            margin-top: 10px;
-        }
+        .rank-num { font-weight: 800; min-width: 32px; }
+        .rank-name { font-weight: 600; }
+        .rank-class { background: #eef3ef; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; white-space: nowrap; }
+        .rank-correct { background: #dcfce7; padding: 2px 8px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+        .rank-time { font-family: monospace; white-space: nowrap; }
+        .live-rank-content { line-height: 1.5; }
 
+        .message-toast {
+            background: #d9f0da;
+            text-align: center;
+            padding: 8px;
+            border-radius: 60px;
+            margin-top: 8px;
+            font-weight: 600;
+            display: none;
+        }
         footer {
             text-align: center;
+            font-size: 0.6rem;
             margin-top: 16px;
-            color: #b9c6bc;
-            font-size: 0.65rem;
+            color: #779e89;
         }
-        .hide { display: none !important; }
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+        }
+        .modal.active { visibility: visible; opacity: 1; }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 24px;
+            width: 280px;
+            text-align: center;
+        }
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .result-card {
+            background: #fff5e6;
+            border-radius: 64px;
+            padding: 28px;
+            text-align: center;
+            max-width: 280px;
+        }
+        button:active { transform: scale(0.96); }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; visibility: hidden; opacity: 0;
-            transition: 0.2s;
-        }
-        .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-container {
-            background: white; border-radius: 40px; width: 85%; max-width: 320px;
-            padding: 20px 18px 24px; text-align: center;
-        }
-        .modal-container h3 { font-size: 1.3rem; color: #3b7c5e; margin-bottom: 12px; }
-        .modal-input-group { margin-bottom: 14px; text-align: left; }
-        .modal-input-group label { font-weight: 600; font-size: 0.8rem; color: #2d5a46; display: block; margin-bottom: 4px; }
-        .modal-input-group select, .modal-input-group input {
-            width: 100%; padding: 8px 12px; border-radius: 32px;
-            border: 1px solid #cedfd6; font-size: 0.85rem;
-        }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 6px; }
-        .modal-btn { flex: 1; padding: 8px; border-radius: 32px; font-weight: bold; border: none; cursor: pointer; }
-        .modal-btn.confirm { background: #7caf7c; color: white; }
-        .modal-btn.cancel { background: #e2e8f0; color: #4a5b52; }
-
-        @media (max-width: 700px) {
-            .rank-wrapper { flex-direction: column; }
-            .two-columns { grid-template-columns: 1fr; gap: 8px; }
-            .card, .slot { width: min(65px, 18vw); height: min(85px, 24vw); }
-            .card-number, .slot-value { font-size: 1.5rem; }
-            .operator-placeholder { width: min(45px, 12vw); height: min(45px, 12vw); font-size: 1.3rem; }
-            .op-circle { width: 48px; height: 48px; font-size: 1.5rem; }
-            .check-btn { padding: 8px 20px; font-size: 0.9rem; }
-            .target-number { font-size: 1.5rem; padding: 6px 20px; }
+        /* 响应式：小屏幕下仍保持两列，但缩小内边距和字体 */
+        @media (max-width: 550px) {
+            .card, .vcard { width: 55px; height: 75px; font-size: 1.3rem; }
+            .slot, .vslot { width: 50px; height: 68px; font-size: 1.3rem; }
+            .op-circle, .vop { width: 44px; height: 44px; font-size: 1.3rem; }
+            .mode-btn, .diff-btn { padding: 3px 8px; font-size: 0.65rem; }
+            .quiz-launch { padding: 5px 14px; font-size: 0.75rem; }
+            .controls-row { gap: 6px; }
+            .rank-grid {
+                gap: 6px;
+            }
+            .rank-item {
+                padding: 6px 8px;
+                font-size: 0.7rem;
+            }
+            .rank-class, .rank-correct, .rank-time {
+                font-size: 0.6rem;
+                padding: 2px 5px;
+            }
         }
     </style>
 </head>
 <body>
 <div class="game-container">
-    <h1>🃏 凑数挑战</h1>
-
-    <div class="top-bar">
-        <div class="difficulty-switch">
-            <button class="difficulty-btn" data-diff="easy">✨简单</button>
-            <button class="difficulty-btn" data-diff="hard">🔥困难</button>
-        </div>
-        <button class="quiz-mode-btn" id="quizModeBtn">🏆 答题模式</button>
-    </div>
-
-    <div class="target-section">
-        <div class="target-number">🎯 目标 <span id="targetNum">14</span></div>
-        <button class="practice-skip-btn" id="practiceSkipBtn">🔄 换一组牌</button>
-    </div>
-
-    <div class="quiz-panel hide" id="quizPanel">
-        <span class="quiz-timer" id="timerDisplay">0 s</span>
-        <span class="quiz-progress" id="progressDisplay">✅ 0/5</span>
-        <button class="skip-btn" id="skipBtn">⏩跳过</button>
-    </div>
-
-    <div class="cards-area" id="cardsArea"></div>
-
-    <div id="operatorCircles" class="operator-circles"></div>
-
-    <div class="equation-area" id="equationArea"></div>
-
-    <div class="action-buttons">
-        <button class="check-btn" id="submitBtn">✔ 验证算式 ✔</button>
-    </div>
-
-    <!-- 游戏反馈消息区域 -->
-    <div id="messageBox" class="message-area hide-message"></div>
-
-    <!-- 排行榜区域 -->
-    <div class="rank-wrapper">
-        <div class="rank-main">
-            <div class="rank-header">
-                <h3 id="currentRankTitle">🔥 困难模式排行榜</h3>
+    <div class="game-header">
+        <h1>🃏 凑数·对战</h1>
+        <div class="controls-row">
+            <div class="mode-group">
+                <button class="mode-btn" data-mode="single">🎯 单人</button>
+                <button class="mode-btn" data-mode="versus">👥 对战</button>
             </div>
-            <div id="twoColumnRank" class="two-columns">
-                <div class="rank-col-list" id="leftRankCol"></div>
-                <div class="rank-col-list" id="rightRankCol"></div>
+            <div class="diff-group" id="diffGroup">
+                <button class="diff-btn" data-diff="easy">✨ 简单</button>
+                <button class="diff-btn" data-diff="hard">🔥 困难</button>
             </div>
-        </div>
-        <div class="live-rank-col">
-            <div id="liveRankCard" class="live-rank-card">
-                <div class="live-rank-title">📊 玩家实时排名</div>
-                <div class="live-rank-content" id="liveRankContent">未登录或暂无成绩</div>
-                <div class="live-rank-note">⭐ 完成答题后自动更新</div>
-            </div>
+            <button class="quiz-launch" id="quizBtn">🏆 答题模式</button>
         </div>
     </div>
-    <footer>减法结果非负 | 答题模式共5题 | 正确/错误/跳过均计为完成一题</footer>
+
+    <!-- 单人模式 -->
+    <div id="singleZone" class="single-area">
+        <div class="target-panel"><span>🎯 目标</span><span class="target-number" id="targetNum">14</span><button class="practice-skip" id="skipPractice">🔄 换牌</button></div>
+        <div class="quiz-panel" id="quizPanel" style="display: none;"><span>⏱️ <span id="timerDisplay">0</span> s</span><span>✅ <span id="progressCount">0</span>/5</span><button id="quizSkipBtn">⏩ 跳过</button></div>
+        <div class="cards-grid" id="cardsGrid"></div>
+        <div class="operator-row" id="opsRow"></div>
+        <div class="slots-area" id="slotsArea"></div>
+        <button class="check-btn" id="submitSingle">✔ 验证算式 ✔</button>
+        <div id="singleMsg" class="message-toast"></div>
+    </div>
+
+    <!-- 双人对战区（儿童面板旋转180°） -->
+    <div id="versusZone" class="versus-area">
+        <div class="round-bar" id="vsRoundInfo">第 1 / 5 回合 · 等待开始</div>
+        <div class="versus-players" id="vsPlayers"></div>
+        <button class="start-versus-btn" id="startVersusBtn">▶ 开始对战</button>
+    </div>
+
+    <!-- 排行榜 (单人模式) -->
+    <div id="rankArea" class="rank-wrapper">
+        <h4 id="rankTitle" style="text-align:center;">🏅 简单模式排行榜</h4>
+        <div class="rank-grid" id="rankLeftCol"></div>
+        <div class="rank-grid" id="rankRightCol" style="margin-top:8px;"></div>
+        <div style="background:#fff0dd; border-radius:40px; padding:8px; margin-top:8px;" id="liveRankCard">
+            <div class="live-rank-title" style="font-weight:700;">📊 玩家实时排名</div>
+            <div class="live-rank-content" id="liveRankContent">未登录或暂无成绩</div>
+        </div>
+    </div>
+    <footer>减法结果非负 | 对战模式支持简单/困难 | 孩子将手机倒置观看 | 点击「开始对战」后计时开始</footer>
 </div>
 
-<div id="infoModal" class="modal-overlay">
-    <div class="modal-container">
-        <h3>🏫 选手信息</h3>
-        <div class="modal-input-group"><label>班级</label><select id="studentClass"><option value="1">1班</option><option value="2">2班</option><option value="3">3班</option><option value="4">4班</option><option value="5">5班</option><option value="6">6班</option></select></div>
-        <div class="modal-input-group"><label>姓名</label><input type="text" id="studentName" placeholder="请输入姓名" maxlength="20"></div>
-        <div class="modal-buttons"><button class="modal-btn cancel" id="modalCancelBtn">取消</button><button class="modal-btn confirm" id="modalConfirmBtn">开始</button></div>
+<div id="infoModal" class="modal">
+    <div class="modal-card">
+        <h3>✏️ 选手信息</h3>
+        <select id="classSelect" style="margin:10px 0; padding:8px; border-radius:30px;"><option>1班</option><option>2班</option><option>3班</option><option>4班</option><option>5班</option><option>6班</option></select>
+        <input type="text" id="studentNameInput" placeholder="姓名" style="width:100%; padding:8px; border-radius:30px; border:1px solid #ccc;">
+        <div style="display:flex; gap:12px; margin-top:16px;"><button id="modalConfirm" style="flex:1; background:#699e7c; border:none; border-radius:40px; padding:8px;">开始</button><button id="modalCancel" style="flex:1; background:#ddd; border:none; border-radius:40px;">取消</button></div>
     </div>
 </div>
 
 <script>
-    // API 配置（按难度分离）
-    const API_BASE_EASY = "https://quickform.cn/api/qo3ux2czpi";
-    const API_BASE_HARD = "https://quickform.cn/api/q12gcimniu";
+    // ---------- API 配置 ----------
+    const API_EASY = "https://quickform.cn/api/qo3ux2czpi";
+    const API_HARD = "https://quickform.cn/api/q12gcimniu";
+    
+    let currentDifficulty = "easy";
+    let isQuizMode = false, quizCorrect = 0, quizDone = 0, quizStartTime = 0, quizTimer = null;
+    let currentStudent = { name: "", class: "" };
+    
+    // 单人牌局
+    let singleCards = [], singleCardData = [], singleSlots = [], singleOps = [];
+    let targetValue = 14;
 
-    // DOM 元素
-    const targetSpan = document.getElementById('targetNum');
-    const cardsArea = document.getElementById('cardsArea');
-    const equationArea = document.getElementById('equationArea');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const progressDisplay = document.getElementById('progressDisplay');
-    const submitBtn = document.getElementById('submitBtn');
-    const quizPanel = document.getElementById('quizPanel');
-    const skipBtn = document.getElementById('skipBtn');
-    const practiceSkipBtn = document.getElementById('practiceSkipBtn');
-    const quizModeBtn = document.getElementById('quizModeBtn');
-    const currentRankTitle = document.getElementById('currentRankTitle');
-    const leftRankCol = document.getElementById('leftRankCol');
-    const rightRankCol = document.getElementById('rightRankCol');
-    const liveRankContent = document.getElementById('liveRankContent');
-    const messageBox = document.getElementById('messageBox');
+    // 双人对战全局
+    let versusActive = false;
+    let gameStarted = false;
+    let currentRound = 1;
+    let sharedTarget = 0, sharedCards = [];
+    let players = {
+        top: { name: "👶 孩子", score: 0, totalMs: 0, roundSubmitted: false, curSlots: [], curOps: [], cardsUsed: [], gameCards: [], startRoundTime: 0 },
+        bottom: { name: "👨‍👩 家长", score: 0, totalMs: 0, roundSubmitted: false, curSlots: [], curOps: [], cardsUsed: [], gameCards: [], startRoundTime: 0 }
+    };
+    let versusRefreshTimer = null;
 
-    const modalOverlay = document.getElementById('infoModal');
-    const studentClassSelect = document.getElementById('studentClass');
-    const studentNameInput = document.getElementById('studentName');
-    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-    const modalCancelBtn = document.getElementById('modalCancelBtn');
-    const operatorCirclesDiv = document.getElementById('operatorCircles');
-
-    // 核心状态
-    let currentDifficulty = 'easy';
-    let targetNumber = 14;
-    let currentCards = [];
-    let cardDataList = [];
-    let slotsData = [];
-    let operators = [];
-
-    let isQuizActive = false;
-    let correctCount = 0, totalCompleted = 0;
-    const TOTAL_QUIZ = 5;
-    let startTime = 0, timerInterval = null;
-    let currentStudent = { class: '', name: '' };
-    let leaderboardTimer = null;
-
-    // 显示反馈消息（自动消失）
-    let messageTimeout = null;
-    function showMessage(msg, isError = false) {
-        if (messageTimeout) clearTimeout(messageTimeout);
-        messageBox.textContent = msg;
-        messageBox.classList.remove('hide-message', 'success', 'error');
-        if (isError) {
-            messageBox.classList.add('error');
-        } else {
-            messageBox.classList.add('success');
-        }
-        messageTimeout = setTimeout(() => {
-            messageBox.classList.add('hide-message');
-        }, 2500);
-    }
-
-    // 获取当前难度的 API 基础地址
+    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩) ----------
     function getApiBase() {
-        return currentDifficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
+        return currentDifficulty === "easy" ? API_EASY : API_HARD;
     }
 
-    // 获取当前难度的排行榜数据（前10名）
-    async function fetchCurrentLeaderboard() {
-        const base = getApiBase();
-        const allUrl = base + '/all';
+    async function fetchLeaderboardData() {
+        const api = getApiBase() + "/all";
         try {
-            const res = await fetch(allUrl, { cache: 'no-cache' });
+            const res = await fetch(api, { cache: "no-cache" });
             if (!res.ok) return [];
             const json = await res.json();
             const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            const records = [];
+            // 去重：以 班级+姓名 为key，保留正确数最多、时间最短的记录
+            const bestMap = new Map();
             for (let item of submissions) {
                 let correct = item.correctCount ?? item.correct ?? 0;
                 let seconds = item.timeSeconds ?? item.time ?? 0;
-                let className = item.class || item.className || '';
-                let studentName = item.name || item.studentName || '';
-                if (className && studentName && correct !== undefined) {
-                    records.push({ correct, seconds, className: String(className), studentName: String(studentName) });
+                let className = item.class ?? item.className ?? "";
+                let studentName = item.name ?? item.studentName ?? "";
+                if (!className || !studentName) continue;
+                const key = `${className}|${studentName}`;
+                const existing = bestMap.get(key);
+                if (!existing) {
+                    bestMap.set(key, { correct, seconds, className, studentName });
+                } else {
+                    if (correct > existing.correct) {
+                        bestMap.set(key, { correct, seconds, className, studentName });
+                    } else if (correct === existing.correct && seconds < existing.seconds) {
+                        bestMap.set(key, { correct, seconds, className, studentName });
+                    }
                 }
             }
-            records.sort((a,b) => a.correct !== b.correct ? b.correct - a.correct : a.seconds - b.seconds);
-            return records.slice(0, 10);
-        } catch(e) {
-            return [];
-        }
-    }
-
-    // 渲染排行榜（一行两列）
-    async function renderCurrentLeaderboard() {
-        const records = await fetchCurrentLeaderboard();
-        const titleText = currentDifficulty === 'easy' ? '✨ 简单模式排行榜' : '🔥 困难模式排行榜';
-        currentRankTitle.innerText = titleText;
-        
-        const leftItems = records.slice(0, 5);
-        const rightItems = records.slice(5, 10);
-        
-        if (leftItems.length === 0) {
-            leftRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
-        } else {
-            let leftHtml = '';
-            leftItems.forEach((item, idx) => {
-                let medal = '';
-                let rankClass = '';
-                if (idx === 0) { medal = '🥇'; rankClass = 'gold'; }
-                else if (idx === 1) { medal = '🥈'; rankClass = 'silver'; }
-                else if (idx === 2) { medal = '🥉'; rankClass = 'bronze'; }
-                else { medal = `${idx+1}`; }
-                leftHtml += `
-                    <div class="rank-item">
-                        <div class="rank-left">
-                            <div class="rank-num ${rankClass}">${medal}</div>
-                            <div class="rank-name">${escapeHtml(item.studentName)}</div>
-                            <div class="rank-class">${escapeHtml(item.className)}</div>
-                        </div>
-                        <div class="rank-stats">
-                            <span class="rank-correct">✅ ${item.correct}/5</span>
-                            <span class="rank-time">⏱️ ${item.seconds}秒</span>
-                        </div>
-                    </div>
-                `;
-            });
-            leftRankCol.innerHTML = leftHtml;
-        }
-        
-        if (rightItems.length === 0) {
-            rightRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
-        } else {
-            let rightHtml = '';
-            rightItems.forEach((item, idx) => {
-                let rankNum = idx + 6;
-                rightHtml += `
-                    <div class="rank-item">
-                        <div class="rank-left">
-                            <div class="rank-num">${rankNum}</div>
-                            <div class="rank-name">${escapeHtml(item.studentName)}</div>
-                            <div class="rank-class">${escapeHtml(item.className)}</div>
-                        </div>
-                        <div class="rank-stats">
-                            <span class="rank-correct">✅ ${item.correct}/5</span>
-                            <span class="rank-time">⏱️ ${item.seconds}秒</span>
-                        </div>
-                    </div>
-                `;
-            });
-            rightRankCol.innerHTML = rightHtml;
-        }
-    }
-
-    // 获取当前用户的实时排名
-    async function updateLiveRank() {
-        if (!currentStudent.name || !currentStudent.class) {
-            liveRankContent.innerHTML = '未登录或暂无成绩<br>点击「答题模式」开始挑战';
-            return;
-        }
-        const base = getApiBase();
-        const allUrl = base + '/all';
-        try {
-            const res = await fetch(allUrl, { cache: 'no-cache' });
-            if (!res.ok) throw new Error();
-            const json = await res.json();
-            const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            const records = [];
-            for (let item of submissions) {
-                let correct = item.correctCount ?? item.correct ?? 0;
-                let seconds = item.timeSeconds ?? item.time ?? 0;
-                let name = item.name || item.studentName || '';
-                let cls = item.class || item.className || '';
-                if (name && cls) {
-                    records.push({ correct, seconds, name, class: cls });
-                }
-            }
-            if (records.length === 0) {
-                liveRankContent.innerHTML = `📭 暂无${currentDifficulty==='easy'?'简单':'困难'}模式数据<br>完成挑战后显示排名`;
-                return;
-            }
+            const records = Array.from(bestMap.values());
             records.sort((a,b) => {
                 if (a.correct !== b.correct) return b.correct - a.correct;
                 return a.seconds - b.seconds;
             });
-            let rank = -1;
-            let userRecord = null;
-            for (let i = 0; i < records.length; i++) {
-                if (records[i].name === currentStudent.name && records[i].class === currentStudent.class) {
-                    rank = i + 1;
-                    userRecord = records[i];
-                    break;
-                }
-            }
-            if (rank === -1 || !userRecord) {
-                liveRankContent.innerHTML = `👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>🏆 暂无成绩，完成5题挑战后上榜`;
-                return;
-            }
-            const total = records.length;
-            const rankText = rank === 1 ? '🥇 第1名' : (rank === 2 ? '🥈 第2名' : (rank === 3 ? '🥉 第3名' : `第 ${rank} 名`));
-            liveRankContent.innerHTML = `
-                👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>
-                🎯 ${currentDifficulty==='easy'?'简单模式':'困难模式'} 最佳成绩：✅ ${userRecord.correct}/5 题，⏱️ ${userRecord.seconds} 秒<br>
-                🏆 当前排名：${rankText} (共 ${total} 人)
-            `;
+            return records.slice(0, 10);
         } catch(e) {
-            liveRankContent.innerHTML = '⚠️ 排名加载失败，请稍后';
+            console.warn("排行榜加载失败", e);
+            return [];
         }
     }
 
-    // 刷新整个排行榜区域
-    async function refreshAllRankings() {
-        await renderCurrentLeaderboard();
-        await updateLiveRank();
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    async function renderLeaderboard() {
+        const records = await fetchLeaderboardData();
+        const leftItems = records.slice(0, 5);
+        const rightItems = records.slice(5, 10);
+        const leftCol = document.getElementById("rankLeftCol");
+        const rightCol = document.getElementById("rankRightCol");
+        
+        if (leftItems.length === 0) {
+            leftCol.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
+        } else {
+            leftCol.innerHTML = leftItems.map((item, idx) => {
+                let medal = "";
+                let medalClass = "";
+                if (idx === 0) { medal = "🥇"; medalClass = "gold"; }
+                else if (idx === 1) { medal = "🥈"; medalClass = "silver"; }
+                else if (idx === 2) { medal = "🥉"; medalClass = "bronze"; }
+                else { medal = `${idx+1}`; medalClass = ""; }
+                return `<div class="rank-item">
+                            <div class="rank-left">
+                                <div class="rank-num ${medalClass}">${medal}</div>
+                                <div class="rank-name">${escapeHtml(item.studentName)}</div>
+                                <div class="rank-class">${escapeHtml(item.className)}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <span class="rank-correct">✅ ${item.correct}/5</span>
+                                <span class="rank-time">⏱️ ${item.seconds}s</span>
+                            </div>
+                        </div>`;
+            }).join('');
+        }
+        
+        if (rightItems.length === 0) {
+            rightCol.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
+        } else {
+            rightCol.innerHTML = rightItems.map((item, idx) => {
+                let rankNum = idx + 6;
+                return `<div class="rank-item">
+                            <div class="rank-left">
+                                <div class="rank-num">${rankNum}</div>
+                                <div class="rank-name">${escapeHtml(item.studentName)}</div>
+                                <div class="rank-class">${escapeHtml(item.className)}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <span class="rank-correct">✅ ${item.correct}/5</span>
+                                <span class="rank-time">⏱️ ${item.seconds}s</span>
+                            </div>
+                        </div>`;
+            }).join('');
+        }
+        
+        await updateUserLiveRank(records);
+    }
+    
+    async function updateUserLiveRank(bestRecords) {
+        if (!currentStudent.name || !currentStudent.class) {
+            document.getElementById("liveRankContent").innerHTML = "未登录，请点击「答题模式」输入信息";
+            return;
+        }
+        let records = bestRecords;
+        if (!records || records.length === 0) records = await fetchLeaderboardData();
+        const userKey = `${currentStudent.class}|${currentStudent.name}`;
+        let userIndex = -1;
+        let userRecord = null;
+        for (let i = 0; i < records.length; i++) {
+            const r = records[i];
+            if (r.className === currentStudent.class && r.studentName === currentStudent.name) {
+                userIndex = i;
+                userRecord = r;
+                break;
+            }
+        }
+        if (userIndex === -1 || !userRecord) {
+            document.getElementById("liveRankContent").innerHTML = `👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>🏆 暂无成绩，完成5题后上榜`;
+            return;
+        }
+        const rank = userIndex + 1;
+        const total = records.length;
+        let rankText = rank === 1 ? "🥇 第1名" : (rank === 2 ? "🥈 第2名" : (rank === 3 ? "🥉 第3名" : `第 ${rank} 名`));
+        document.getElementById("liveRankContent").innerHTML = `
+            👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>
+            🎯 最佳成绩：✅ ${userRecord.correct}/5 题，⏱️ ${userRecord.seconds} 秒<br>
+            🏆 当前排名：${rankText} (共 ${total} 人)
+        `;
     }
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
-    function startLeaderboardRefresh() { if(leaderboardTimer) clearInterval(leaderboardTimer); refreshAllRankings(); leaderboardTimer = setInterval(refreshAllRankings, 30000); }
+    async function refreshLeaderboard() {
+        if (versusActive) return;
+        await renderLeaderboard();
+    }
 
-    function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
-    function startTimer() { stopTimer(); startTime=Date.now(); timerInterval=setInterval(()=>{ if(isQuizActive) timerDisplay.textContent = Math.floor((Date.now()-startTime)/1000)+' s'; },200); }
-    function updateQuizUI() { progressDisplay.innerHTML = `✅ ${correctCount} / ${TOTAL_QUIZ}`; }
-
-    // 提交成绩
-    async function sendGameData(correct, total, seconds, difficulty, completed, className, studentName) {
-        if(!completed) return;
-        const apiBase = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
+    async function submitScoreToAPI(correct, total, seconds, difficulty, className, studentName) {
+        const api = difficulty === "easy" ? API_EASY : API_HARD;
         try {
-            await fetch(apiBase, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            await fetch(api, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     event: "quiz_completed",
                     correctCount: correct,
                     totalQuestions: total,
                     timeSeconds: seconds,
-                    difficulty,
+                    difficulty: difficulty,
                     class: className,
                     name: studentName,
                     timestamp: new Date().toISOString(),
-                    game: "poker_math_20"
+                    game: "poker_math"
                 })
             });
-            await refreshAllRankings();
-        } catch(e) {}
+            await refreshLeaderboard();
+        } catch(e) { console.warn(e); }
     }
 
-    function finishQuiz(completed=true) {
-        if(!isQuizActive) return;
-        const elapsed = Math.floor((Date.now()-startTime)/1000);
-        const full = completed && totalCompleted >= TOTAL_QUIZ;
-        isQuizActive=false; stopTimer();
-        if(full) {
-            sendGameData(correctCount, TOTAL_QUIZ, elapsed, currentDifficulty, true, currentStudent.class, currentStudent.name);
-            showMessage(`🎉 答题完成！ 答对 ${correctCount} 题，用时 ${elapsed} 秒`, false);
-        }
-        correctCount=0; totalCompleted=0; updateQuizUI(); timerDisplay.textContent='0 s';
-        quizPanel.classList.add('hide');
-        quizModeBtn.classList.remove('disabled-btn'); quizModeBtn.disabled=false; quizModeBtn.textContent='🏆 答题模式';
-        refreshGame(true);
-    }
-
-    function clearAllSlots() {
-        const len = currentDifficulty==='easy'?2:3;
-        slotsData = Array(len).fill(null);
-        if(cardDataList.length) cardDataList.forEach(c=>c.used=false);
-        renderCards();
-        renderEquationArea();
-    }
-    function resetOperators() {
-        operators = currentDifficulty==='easy' ? [null] : [null, null];
-        renderOperatorCircles();
-        renderEquationArea();
-    }
+    // ---------- 以下保持原有的单人/双人游戏逻辑 ----------
+    function showMessage(domId, msg, isErr) { let el = document.getElementById(domId); if(el){ el.innerText = msg; el.style.display = "block"; setTimeout(()=>el.style.display="none", 1800); } }
 
     function hasValidSolution(diff, target, cards) {
-        if(diff==='easy') {
+        if(diff === "easy") {
             for(let i=0;i<cards.length;i++) for(let j=i+1;j<cards.length;j++) {
                 let a=cards[i],b=cards[j];
                 if(a+b===target) return true;
@@ -820,286 +751,477 @@
         }
     }
 
-    function generateValidGame() {
-        for(let att=0;att<45;att++) {
-            let newTarget = Math.floor(Math.random()*20)+1;
-            let newCards = Array.from({length:4},()=>Math.floor(Math.random()*13)+1);
-            if(hasValidSolution(currentDifficulty, newTarget, newCards)) {
-                targetNumber=newTarget; currentCards=[...newCards];
-                targetSpan.innerText=targetNumber;
-                cardDataList = currentCards.map((val,idx)=>({ id:`c_${Date.now()}_${idx}_${Math.random()}`, value:val, used:false }));
+    function generateSharedGame(){
+        let diff = currentDifficulty;
+        for(let i=0;i<40;i++){
+            let t = Math.floor(Math.random()*20)+3;
+            let cards = Array.from({length:4},()=>Math.floor(Math.random()*13)+1);
+            if(hasValidSolution(diff, t, cards)){
+                sharedTarget = t;
+                sharedCards = [...cards];
                 return;
             }
         }
-        targetNumber = currentDifficulty==='easy'?10:12;
-        currentCards = currentDifficulty==='easy'?[4,6,2,9]:[5,7,3,4];
-        targetSpan.innerText=targetNumber;
-        cardDataList = currentCards.map((val,idx)=>({ id:`c_back_${idx}`, value:val, used:false }));
+        sharedTarget = diff==="easy"?12:15;
+        sharedCards = diff==="easy"?[5,6,3,4]:[7,5,8,3];
     }
 
-    function refreshGame(keepClear=true) { 
-        generateValidGame(); 
-        if(keepClear) { 
-            clearAllSlots(); 
-            resetOperators(); 
-        } 
-        renderCards(); 
-        renderEquationArea(); 
-    }
-
-    function quizCompleteOne(isCorrect=true) {
-        if(!isQuizActive || totalCompleted>=TOTAL_QUIZ) return;
-        if(isCorrect) {
-            correctCount++;
-            showMessage(`✅ 恭喜！回答正确！ (${totalCompleted+1}/${TOTAL_QUIZ})`, false);
-        } else {
-            showMessage(`❌ 答错了，继续加油！ (${totalCompleted+1}/${TOTAL_QUIZ})`, true);
-        }
-        totalCompleted++;
-        updateQuizUI();
-        if(totalCompleted===TOTAL_QUIZ) { finishQuiz(true); return; }
-        refreshGame(true);
-    }
-
-    function computeCurrentExpression() {
-        const values = slotsData.map(s=>s?.value);
-        if(values.includes(undefined)) return null;
-        if(currentDifficulty==='easy') {
-            if(operators[0] === null) { showMessage('请先选择运算符（+ 或 -）', true); return null; }
-            let a=values[0], b=values[1];
-            if(operators[0]==='+') return a+b;
-            let diff=a-b; if(diff<0) { showMessage('减法结果不能为负数', true); return null; }
-            return diff;
-        } else {
-            if(operators[0]===null || operators[1]===null) { showMessage('请先选择两个运算符', true); return null; }
-            let step=values[0];
-            for(let i=0;i<operators.length;i++) {
-                let nxt=values[i+1];
-                if(operators[i]==='+') step+=nxt; else step-=nxt;
-                if(step<0){ showMessage('运算过程出现负数', true); return null; }
-            } return step;
-        }
-    }
-
-    function validateSlotsFilled() {
-        let need = currentDifficulty==='easy'?2:3;
-        let filled = slotsData.filter(s=>s!==null).length;
-        if(filled!==need){ showMessage(`请放置 ${need} 张扑克牌到算式格`, true); return false; }
-        return true;
-    }
-
-    function handleVerify() {
-        if(!validateSlotsFilled()) return;
-        let res = computeCurrentExpression(); if(res===null) return;
-        let correct = (res===targetNumber);
-        if(!isQuizActive) {
-            if(correct) {
-                showMessage(`✅ 恭喜！答对了！`, false);
-                refreshGame(true);
-            } else {
-                showMessage(`❌ 答错了，结果是 ${res}，目标是 ${targetNumber}`, true);
-            }
-            return;
-        }
-        if(totalCompleted >= TOTAL_QUIZ) { finishQuiz(true); return; }
-        quizCompleteOne(correct);
-    }
-
-    function handleSkipOrRefresh() {
-        if(!isQuizActive) { refreshGame(true); showMessage(`🃏 换一组牌`, false); }
-        else { 
-            if(totalCompleted < TOTAL_QUIZ) {
-                showMessage(`⏩ 跳过本题`, false);
-                quizCompleteOne(false);
+    function generateSingleGame(){
+        let diff = currentDifficulty;
+        for(let t=0;t<40;t++){
+            let newTarget = Math.floor(Math.random()*20)+3;
+            let newCards = Array.from({length:4},()=>Math.floor(Math.random()*13)+1);
+            if(hasValidSolution(diff, newTarget, newCards)){
+                targetValue = newTarget; singleCards = [...newCards];
+                document.getElementById("targetNum").innerText = targetValue;
+                singleCardData = singleCards.map((v,i)=>({id:`c_${i}`, val:v, used:false}));
+                return;
             }
         }
+        targetValue=12; singleCards=[5,4,7,2]; document.getElementById("targetNum").innerText=targetValue;
+        singleCardData = singleCards.map((v,i)=>({id:`c_${i}`, val:v, used:false}));
     }
 
-    function autoFillCard(cardId) {
-        const card = cardDataList.find(c=>c.id===cardId);
-        if(!card || card.used) { showMessage('这张牌已被使用', true); return false; }
-        const emptyIndex = slotsData.findIndex(slot => slot === null);
-        if(emptyIndex === -1) { showMessage('算式格已满，请先移除其他卡片', true); return false; }
-        slotsData[emptyIndex] = { cardId: card.id, value: card.value };
+    function renderSingleCards(){
+        let container = document.getElementById("cardsGrid");
+        container.innerHTML = "";
+        singleCardData.forEach(card=>{
+            let div = document.createElement("div");
+            div.className = `card ${card.used ? "disabled" : ""}`;
+            let suit = (card.val%4===0?'♥':card.val%3===0?'♣':card.val%2===0?'♦':'♠');
+            div.innerHTML = `<div>${card.val}</div><div style="font-size:1rem;">${suit}</div>`;
+            if(!card.used) div.onclick = ()=> tryPlaceCard(card.id);
+            else div.onclick = ()=> removeCardByCardId(card.id);
+            container.appendChild(div);
+        });
+    }
+    function tryPlaceCard(cardId){
+        let card = singleCardData.find(c=>c.id===cardId);
+        if(!card || card.used) return;
+        let idx = singleSlots.findIndex(s=>s===null);
+        if(idx===-1){ showMessage("singleMsg","格已满",true); return; }
+        singleSlots[idx] = { cardId: card.id, val: card.val };
         card.used = true;
-        renderCards();
-        renderEquationArea();
-        showMessage(`将 ${card.value} 放入第${emptyIndex+1}格`, false);
-        return true;
+        renderSingleSlots(); renderSingleCards();
     }
-
-    function removeCardFromSlot(slotIndex) {
-        if(slotsData[slotIndex]) {
-            const cardId = slotsData[slotIndex].cardId;
-            const card = cardDataList.find(c=>c.id===cardId);
+    function removeCardByCardId(cardId){
+        let idx = singleSlots.findIndex(s=>s?.cardId===cardId);
+        if(idx!==-1){
+            let card = singleCardData.find(c=>c.id===cardId);
             if(card) card.used = false;
-            slotsData[slotIndex] = null;
-            renderCards();
-            renderEquationArea();
-            showMessage(`已从算式格移除`, false);
+            singleSlots[idx] = null;
+            renderSingleSlots(); renderSingleCards();
         }
     }
-
-    function selectOperator(idx, op) {
-        if(idx >= operators.length) return;
-        operators[idx] = op;
-        renderOperatorCircles();
-        renderEquationArea();
-        showMessage(`已选择${op==='+'?'加法':'减法'}运算符`, false);
-    }
-
-    function renderOperatorCircles() {
-        if(currentDifficulty === 'easy') {
-            operatorCirclesDiv.innerHTML = `<div class="op-pair"><div class="op-circle ${operators[0]==='+'?'active':''}" data-opidx="0" data-op="+">➕</div><div class="op-circle ${operators[0]==='-'?'active':''}" data-opidx="0" data-op="-">➖</div></div>`;
-        } else {
-            operatorCirclesDiv.innerHTML = `<div class="op-pair"><div class="op-circle ${operators[0]==='+'?'active':''}" data-opidx="0" data-op="+">➕</div><div class="op-circle ${operators[0]==='-'?'active':''}" data-opidx="0" data-op="-">➖</div></div><div class="op-pair"><div class="op-circle ${operators[1]==='+'?'active':''}" data-opidx="1" data-op="+">➕</div><div class="op-circle ${operators[1]==='-'?'active':''}" data-opidx="1" data-op="-">➖</div></div>`;
+    function removeSlotByIndex(idx){
+        if(singleSlots[idx]){
+            let card = singleCardData.find(c=>c.id===singleSlots[idx].cardId);
+            if(card) card.used=false;
+            singleSlots[idx]=null;
+            renderSingleSlots(); renderSingleCards();
         }
-        document.querySelectorAll('.op-circle').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let idx = parseInt(btn.dataset.opidx);
-                let op = btn.dataset.op;
-                selectOperator(idx, op);
-            });
-        });
     }
-
-    function renderEquationArea() {
-        equationArea.innerHTML = '';
-        const container = document.createElement('div');
-        container.className = 'slots-container';
-        const slotsCount = currentDifficulty==='easy'?2:3;
-        for(let i=0;i<slotsCount;i++) {
-            const slotDiv = document.createElement('div');
-            slotDiv.className = `slot ${slotsData[i] ? 'filled' : ''}`;
-            slotDiv.setAttribute('data-slot-index', i);
-            const valSpan = document.createElement('div');
-            valSpan.className = 'slot-value';
-            valSpan.innerText = slotsData[i] ? slotsData[i].value : '?';
-            slotDiv.appendChild(valSpan);
-            slotDiv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if(slotsData[i]) removeCardFromSlot(i);
-            });
-            slotDiv.addEventListener('dragover', e=>e.preventDefault());
-            slotDiv.addEventListener('drop', (e)=>{
-                e.preventDefault();
-                const cardId = e.dataTransfer.getData('text/plain');
-                if(cardId) {
-                    const card = cardDataList.find(c=>c.id===cardId);
-                    if(card && !card.used) {
-                        if(slotsData[i] !== null) {
-                            const oldCard = cardDataList.find(c=>c.id===slotsData[i].cardId);
-                            if(oldCard) oldCard.used = false;
-                        }
-                        slotsData[i] = { cardId: card.id, value: card.value };
-                        card.used = true;
-                        renderCards(); renderEquationArea();
-                    }
-                }
-            });
-            container.appendChild(slotDiv);
-            if(i < slotsCount-1) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'operator-placeholder';
-                const opIndex = (currentDifficulty==='easy') ? 0 : i;
-                const selectedOp = operators[opIndex];
-                placeholder.innerText = selectedOp === '+' ? '➕' : (selectedOp === '-' ? '➖' : '');
-                container.appendChild(placeholder);
+    function renderSingleSlots(){
+        let need = currentDifficulty==="easy"?2:3;
+        let container = document.getElementById("slotsArea");
+        let html = `<div class="slots-row">`;
+        for(let i=0;i<need;i++){
+            let val = singleSlots[i]?.val || "?";
+            let filled = singleSlots[i]?"filled":"";
+            html += `<div class="slot ${filled}" data-idx="${i}">${val}</div>`;
+            if(i<need-1){
+                let opIdx = (currentDifficulty==="easy"?0:i);
+                let opChar = singleOps[opIdx]==='+'?'➕':(singleOps[opIdx]==='-'?'➖':'?');
+                html += `<div class="op-place">${opChar}</div>`;
             }
         }
-        equationArea.appendChild(container);
+        html += `</div>`;
+        container.innerHTML = html;
+        document.querySelectorAll(".slot").forEach(s=>{ let idx = parseInt(s.dataset.idx); s.onclick = ()=> { if(singleSlots[idx]) removeSlotByIndex(idx); }; });
     }
-
-    function renderCards() {
-        cardsArea.innerHTML = '';
-        cardDataList.forEach(card => {
-            const div = document.createElement('div');
-            div.className = `card ${card.used ? 'disabled-card' : ''}`;
-            if(!card.used) div.setAttribute('draggable', 'true');
-            else div.setAttribute('draggable', 'false');
-            div.setAttribute('data-id', card.id);
-            const suit = (card.value%4===0?'♥':(card.value%3===0?'♣':(card.value%2===0?'♦':'♠')));
-            div.innerHTML = `<div class="card-number">${card.value}</div><div class="card-suit">${suit}</div>`;
-            div.addEventListener('dragstart', (e) => {
-                if(card.used) { e.preventDefault(); return false; }
-                e.dataTransfer.setData('text/plain', card.id);
-            });
-            div.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if(card.used) {
-                    for(let i=0;i<slotsData.length;i++) {
-                        if(slotsData[i] && slotsData[i].cardId === card.id) {
-                            slotsData[i] = null;
-                        }
-                    }
-                    card.used = false;
-                    renderCards(); renderEquationArea();
-                    showMessage(`已从算式格移除`, false);
-                } else {
-                    autoFillCard(card.id);
-                }
-            });
-            cardsArea.appendChild(div);
+    function renderOps(){
+        let container = document.getElementById("opsRow");
+        if(currentDifficulty==="easy"){
+            container.innerHTML = `<div class="op-circle ${singleOps[0]==='+'?'active':''}" data-op="+" data-idx="0">➕</div><div class="op-circle ${singleOps[0]==='-'?'active':''}" data-op="-" data-idx="0">➖</div>`;
+        } else {
+            container.innerHTML = `<div class="op-circle ${singleOps[0]==='+'?'active':''}" data-op="+" data-idx="0">➕</div><div class="op-circle ${singleOps[0]==='-'?'active':''}" data-op="-" data-idx="0">➖</div>
+                                    <div class="op-circle ${singleOps[1]==='+'?'active':''}" data-op="+" data-idx="1">➕</div><div class="op-circle ${singleOps[1]==='-'?'active':''}" data-op="-" data-idx="1">➖</div>`;
+        }
+        document.querySelectorAll(".op-circle").forEach(btn=>{
+            btn.onclick = ()=>{
+                let idx = parseInt(btn.dataset.idx);
+                let op = btn.dataset.op;
+                singleOps[idx] = op;
+                renderOps(); renderSingleSlots();
+            };
         });
     }
+    function computeSingle(){
+        let need = currentDifficulty==="easy"?2:3;
+        let vals = singleSlots.slice(0,need).map(s=>s?.val);
+        if(vals.includes(undefined)) return null;
+        if(currentDifficulty==="easy"){
+            if(singleOps[0]===null) return null;
+            let r = singleOps[0]==='+'? vals[0]+vals[1] : vals[0]-vals[1];
+            return r>=0?r:null;
+        } else {
+            if(singleOps.includes(null)) return null;
+            let step=vals[0];
+            for(let i=0;i<2;i++) step = singleOps[i]==='+'? step+vals[i+1] : step-vals[i+1];
+            return step>=0?step:null;
+        }
+    }
+    function onSingleVerify(){
+        let need = currentDifficulty==="easy"?2:3;
+        if(singleSlots.filter(s=>s!==null).length !== need){ showMessage("singleMsg","放满算式格",true); return; }
+        let res = computeSingle();
+        if(res===null){ showMessage("singleMsg","选运算符",true); return; }
+        let correct = (res === targetValue);
+        if(!isQuizMode){
+            showMessage("singleMsg", correct?"✅正确":"❌错误", !correct);
+            if(correct) generateSingleGame();
+            singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+            singleCardData.forEach(c=>c.used=false);
+            renderSingleCards(); renderSingleSlots(); renderOps();
+        } else {
+            if(quizDone>=5) return;
+            if(correct) quizCorrect++;
+            quizDone++;
+            document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`;
+            showMessage("singleMsg", correct?"🎉答对！下一题":"❌答错，下一题", !correct);
+            if(quizDone===5){
+                let sec = Math.floor((Date.now()-quizStartTime)/1000);
+                finishQuiz(sec);
+            } else {
+                generateSingleGame();
+                singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+                singleCardData.forEach(c=>c.used=false);
+                renderSingleCards(); renderSingleSlots(); renderOps();
+            }
+        }
+    }
+    function finishQuiz(sec){
+        if(quizTimer) clearInterval(quizTimer);
+        isQuizMode=false;
+        document.getElementById("quizPanel").style.display="none";
+        document.getElementById("quizBtn").disabled=false;
+        document.getElementById("quizBtn").innerText="🏆 答题模式";
+        showMessage("singleMsg",`完成！${quizCorrect}/5题，用时${sec}秒`,false);
+        if(currentStudent.name && currentStudent.class) {
+            submitScoreToAPI(quizCorrect, 5, sec, currentDifficulty, currentStudent.class, currentStudent.name);
+        }
+        refreshLeaderboard();
+    }
+    function startQuiz(){
+        if(isQuizMode) return;
+        if(!currentStudent.name){ document.getElementById("infoModal").classList.add("active"); return; }
+        isQuizMode=true; quizCorrect=0; quizDone=0; quizStartTime=Date.now();
+        document.getElementById("quizPanel").style.display="flex";
+        document.getElementById("progressCount").innerText="0/0";
+        if(quizTimer) clearInterval(quizTimer);
+        quizTimer = setInterval(()=>{ if(isQuizMode) document.getElementById("timerDisplay").innerText = Math.floor((Date.now()-quizStartTime)/1000); },500);
+        document.getElementById("quizBtn").disabled=true;
+        document.getElementById("quizBtn").innerText="⏳ 答题中";
+        generateSingleGame();
+        let need = currentDifficulty==="easy"?2:3;
+        singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+        singleCardData.forEach(c=>c.used=false);
+        renderSingleCards(); renderSingleSlots(); renderOps();
+    }
 
-    // 切换难度
-    async function setDifficulty(diff) {
-        if(isQuizActive) return;
-        currentDifficulty = diff;
-        document.querySelectorAll('.difficulty-btn').forEach(btn=>{
-            if(btn.getAttribute('data-diff')===diff) btn.classList.add('active');
-            else btn.classList.remove('active');
+    // 双人对战函数 (保持不变，略)
+    function buildVersusUI(){
+        let container = document.getElementById("vsPlayers");
+        container.innerHTML = `
+            <div class="player-panel top" id="topPanel">
+                <div class="player-header"><span class="player-name">👶 孩子</span><span class="player-target" id="topTarget">🎯 ?</span><div class="player-stats"><span id="topScore">0分</span><span id="topTime">0s</span></div></div>
+                <div class="versus-cards" id="topCards"></div><div class="versus-ops" id="topOps"></div><div class="versus-slots" id="topSlots"></div>
+                <button class="versus-submit" id="topSubmit">✅ 提交</button><div class="wait-tip" id="topWait"></div>
+            </div>
+            <div class="player-panel bottom" id="bottomPanel">
+                <div class="player-header"><span class="player-name">👨‍👩 家长</span><span class="player-target" id="bottomTarget">🎯 ?</span><div class="player-stats"><span id="bottomScore">0分</span><span id="bottomTime">0s</span></div></div>
+                <div class="versus-cards" id="bottomCards"></div><div class="versus-ops" id="bottomOps"></div><div class="versus-slots" id="bottomSlots"></div>
+                <button class="versus-submit" id="bottomSubmit">✅ 提交</button><div class="wait-tip" id="bottomWait"></div>
+            </div>
+        `;
+    }
+    function initVersusPlayer(side){
+        let p = players[side];
+        let slotCount = currentDifficulty==="easy"?2:3;
+        let opCount = currentDifficulty==="easy"?1:2;
+        p.curSlots = Array(slotCount).fill(null);
+        p.curOps = Array(opCount).fill(null);
+        p.cardsUsed = [false,false,false,false];
+        p.gameCards = [...sharedCards];
+        p.roundSubmitted = false;
+        p.startRoundTime = 0;
+        if(p.totalMs === undefined) p.totalMs = 0;
+        renderVersusPlayer(side);
+    }
+    function renderVersusPlayer(side){
+        let p = players[side];
+        let isTop = (side === "top");
+        let slotCount = currentDifficulty==="easy"?2:3;
+        let opCount = currentDifficulty==="easy"?1:2;
+        document.getElementById(isTop?"topTarget":"bottomTarget").innerText = `🎯 ${sharedTarget}`;
+        let cardsDiv = document.getElementById(isTop?"topCards":"bottomCards");
+        cardsDiv.innerHTML = "";
+        p.gameCards.forEach((val,idx)=>{
+            let used = p.cardsUsed[idx];
+            let suit = (val%4===0?'♥':val%3===0?'♣':val%2===0?'♦':'♠');
+            let cardDiv = document.createElement("div");
+            cardDiv.className = `vcard ${used ? "disabled-vcard" : ""}`;
+            cardDiv.innerHTML = `<div>${val}</div><div style="font-size:0.9rem;">${suit}</div>`;
+            if(!used && !p.roundSubmitted){
+                cardDiv.onclick = ()=>{
+                    let empty = p.curSlots.findIndex(v=>v===null);
+                    if(empty!==-1){
+                        p.curSlots[empty] = val;
+                        p.cardsUsed[idx] = true;
+                        renderVersusPlayer(side);
+                    } else { showMessage("singleMsg","槽位已满",true); }
+                };
+            }
+            cardsDiv.appendChild(cardDiv);
         });
-        if(currentDifficulty==='easy') { slotsData=[null,null]; operators=[null]; }
-        else { slotsData=[null,null,null]; operators=[null,null]; }
-        refreshGame(true);
-        await refreshAllRankings();
+        let opsDiv = document.getElementById(isTop?"topOps":"bottomOps");
+        opsDiv.innerHTML = "";
+        for(let i=0;i<opCount;i++){
+            let plusBtn = document.createElement("div"); plusBtn.className = `vop ${p.curOps[i]==='+'?'active':''}`; plusBtn.innerText = "➕";
+            let minusBtn = document.createElement("div"); minusBtn.className = `vop ${p.curOps[i]==='-'?'active':''}`; minusBtn.innerText = "➖";
+            if(!p.roundSubmitted){
+                plusBtn.onclick = ()=>{ p.curOps[i]='+'; renderVersusPlayer(side); };
+                minusBtn.onclick = ()=>{ p.curOps[i]='-'; renderVersusPlayer(side); };
+            }
+            opsDiv.appendChild(plusBtn); opsDiv.appendChild(minusBtn);
+            if(i<opCount-1) opsDiv.appendChild(document.createElement("span"));
+        }
+        let slotsDiv = document.getElementById(isTop?"topSlots":"bottomSlots");
+        slotsDiv.innerHTML = "";
+        for(let i=0;i<slotCount;i++){
+            let val = p.curSlots[i];
+            let slotDiv = document.createElement("div");
+            slotDiv.className = `vslot ${val!==null?"filled":""}`;
+            slotDiv.innerText = val!==null?val:"?";
+            if(!p.roundSubmitted && val!==null){
+                slotDiv.onclick = ()=>{
+                    let cardIdx = p.gameCards.findIndex((c,idx)=>c===val && p.cardsUsed[idx]===true);
+                    if(cardIdx!==-1) p.cardsUsed[cardIdx]=false;
+                    p.curSlots[i]=null;
+                    renderVersusPlayer(side);
+                };
+            }
+            slotsDiv.appendChild(slotDiv);
+            if(i<slotCount-1){
+                let opSym = p.curOps[currentDifficulty==="easy"?0:i];
+                let place = document.createElement("div"); place.className="vop-place"; place.innerText = opSym==='+'?'➕':opSym==='-'?'➖':'?';
+                slotsDiv.appendChild(place);
+            }
+        }
+        document.getElementById(isTop?"topScore":"bottomScore").innerText = `${p.score}分`;
+        if(!gameStarted) document.getElementById(isTop?"topWait":"bottomWait").innerText = "⏳ 等待开始";
+        else document.getElementById(isTop?"topWait":"bottomWait").innerText = p.roundSubmitted ? "⏳ 已提交，等待对方" : "";
+        let submitBtn = document.getElementById(isTop?"topSubmit":"bottomSubmit");
+        if(!gameStarted || p.roundSubmitted){ submitBtn.disabled=true; submitBtn.classList.add("disabled-submit");}
+        else { submitBtn.disabled=false; submitBtn.classList.remove("disabled-submit");}
     }
-
-    function startQuizChallengeInternal() {
-        if(isQuizActive) return;
-        isQuizActive=true; correctCount=0; totalCompleted=0; updateQuizUI(); startTimer();
-        quizPanel.classList.remove('hide');
-        quizModeBtn.classList.add('disabled-btn'); quizModeBtn.disabled=true; quizModeBtn.textContent='⏳ 答题中';
-        refreshGame(true);
-        showMessage(`📢 答题开始！共5题`, false);
+    function refreshVersusTimers(){
+        if(!versusActive || !gameStarted) return;
+        let now = Date.now();
+        for(let side of ["top","bottom"]){
+            let p = players[side];
+            let displaySec = 0;
+            if(p.roundSubmitted) displaySec = Math.floor(p.totalMs / 1000);
+            else if(p.startRoundTime > 0) displaySec = Math.floor((p.totalMs + (now - p.startRoundTime)) / 1000);
+            let isTop = (side === "top");
+            document.getElementById(isTop?"topTime":"bottomTime").innerText = `${displaySec}s`;
+        }
     }
-    function openInfoModal() { studentNameInput.value=''; studentClassSelect.value='1'; modalOverlay.classList.add('active'); }
-    function closeModal() { modalOverlay.classList.remove('active'); }
-    function confirmStudentInfo() {
-        let cls = studentClassSelect.value + '班';
-        let name = studentNameInput.value.trim();
-        if(!name) { alert('请输入姓名'); return; }
-        currentStudent.class=cls; currentStudent.name=name;
-        closeModal();
-        startQuizChallengeInternal();
-        updateLiveRank();
+    function computeVersusExpression(p){
+        let slotCount = currentDifficulty==="easy"?2:3;
+        let vals = p.curSlots.slice(0,slotCount);
+        if(vals.includes(null)) return null;
+        if(currentDifficulty==="easy"){
+            if(p.curOps[0]===null) return null;
+            let r = p.curOps[0]==='+'? vals[0]+vals[1] : vals[0]-vals[1];
+            return r>=0?r:null;
+        } else {
+            if(p.curOps.includes(null)) return null;
+            let step = vals[0];
+            for(let i=0;i<2;i++) step = p.curOps[i]==='+'? step+vals[i+1] : step-vals[i+1];
+            return step>=0?step:null;
+        }
     }
-    function onQuizModeClick() {
-        if(isQuizActive) return;
-        openInfoModal();
+    async function submitVersus(side){
+        let p = players[side];
+        if(!gameStarted || p.roundSubmitted) return;
+        let slotCount = currentDifficulty==="easy"?2:3;
+        if(p.curSlots.filter(v=>v!==null).length !== slotCount){ showMessage("singleMsg","请放满所有格子",true); return; }
+        let exprVal = computeVersusExpression(p);
+        if(exprVal===null){ showMessage("singleMsg","请完整选择运算符",true); return; }
+        let correct = (exprVal === sharedTarget);
+        let now = Date.now();
+        let elapsed = now - p.startRoundTime;
+        p.totalMs += elapsed;
+        if(correct) p.score++;
+        p.roundSubmitted = true;
+        renderVersusPlayer(side);
+        if(players.top.roundSubmitted && players.bottom.roundSubmitted){
+            if(currentRound === 5){
+                endVersusMatch();
+                return;
+            }
+            currentRound++;
+            document.getElementById("vsRoundInfo").innerHTML = `第 ${currentRound} / 5 回合 · 对战进行中`;
+            generateSharedGame();
+            for(let s of ["top","bottom"]){
+                players[s].roundSubmitted = false;
+                let slotCnt = currentDifficulty==="easy"?2:3;
+                let opCnt = currentDifficulty==="easy"?1:2;
+                players[s].curSlots = Array(slotCnt).fill(null);
+                players[s].curOps = Array(opCnt).fill(null);
+                players[s].cardsUsed = [false,false,false,false];
+                players[s].gameCards = [...sharedCards];
+                players[s].startRoundTime = Date.now();
+                renderVersusPlayer(s);
+            }
+        }
+    }
+    function endVersusMatch(){
+        if(versusRefreshTimer) clearInterval(versusRefreshTimer);
+        let top = players.top, bot = players.bottom;
+        let topScore = top.score, botScore = bot.score;
+        let topTimeSec = Math.floor(top.totalMs/1000), botTimeSec = Math.floor(bot.totalMs/1000);
+        let winnerMsg = "";
+        if(topScore > botScore) winnerMsg = "👶 孩子获胜！";
+        else if(botScore > topScore) winnerMsg = "👨‍👩 家长获胜！";
+        else {
+            if(topTimeSec < botTimeSec) winnerMsg = "👶 孩子时间领先，平局按时间判胜！";
+            else if(botTimeSec < topTimeSec) winnerMsg = "👨‍👩 家长时间领先，平局按时间判胜！";
+            else winnerMsg = "🤝 完全平局！";
+        }
+        let modal = document.createElement("div"); modal.className="result-overlay";
+        modal.innerHTML = `<div class="result-card"><h3>🏁 对战结束</h3><p>孩子: ${topScore}分 / ${topTimeSec}秒</p><p>家长: ${botScore}分 / ${botTimeSec}秒</p><h2>${winnerMsg}</h2><button id="closeResult" style="margin-top:12px; background:#699e7c; border:none; padding:8px 24px; border-radius:60px;">关闭</button></div>`;
+        document.body.appendChild(modal);
+        document.getElementById("closeResult").onclick = ()=>{ modal.remove(); exitVersusMode(); };
+        versusActive = false;
+        gameStarted = false;
+    }
+    function exitVersusMode(){
+        if(versusRefreshTimer) clearInterval(versusRefreshTimer);
+        versusActive = false;
+        gameStarted = false;
+        document.getElementById("versusZone").classList.remove("show");
+        document.getElementById("singleZone").classList.remove("hide");
+        document.getElementById("rankArea").style.display = "block";
+        document.getElementById("quizBtn").style.display = "inline-block";
+        document.querySelector(".mode-btn[data-mode='single']").classList.add("active");
+        document.querySelector(".mode-btn[data-mode='versus']").classList.remove("active");
+        document.querySelectorAll(".diff-btn").forEach(btn=>btn.classList.remove("active"));
+        document.querySelector(`.diff-btn[data-diff="${currentDifficulty}"]`).classList.add("active");
+        generateSingleGame();
+        let need = currentDifficulty==="easy"?2:3;
+        singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+        renderSingleCards(); renderSingleSlots(); renderOps();
+        refreshLeaderboard();
+    }
+    function startVersus(){
+        versusActive = true;
+        gameStarted = false;
+        document.getElementById("singleZone").classList.add("hide");
+        document.getElementById("versusZone").classList.add("show");
+        document.getElementById("rankArea").style.display = "none";
+        document.getElementById("quizBtn").style.display = "none";
+        currentRound = 1;
+        let slotCnt = currentDifficulty==="easy"?2:3;
+        let opCnt = currentDifficulty==="easy"?1:2;
+        players = {
+            top: { name:"孩子", score:0, totalMs:0, roundSubmitted:false, curSlots:Array(slotCnt).fill(null), curOps:Array(opCnt).fill(null), cardsUsed:[false,false,false,false], gameCards:[], startRoundTime:0 },
+            bottom: { name:"家长", score:0, totalMs:0, roundSubmitted:false, curSlots:Array(slotCnt).fill(null), curOps:Array(opCnt).fill(null), cardsUsed:[false,false,false,false], gameCards:[], startRoundTime:0 }
+        };
+        buildVersusUI();
+        generateSharedGame();
+        for(let s of ["top","bottom"]) initVersusPlayer(s);
+        document.getElementById("vsRoundInfo").innerHTML = "第 1 / 5 回合 · 等待开始";
+        let startBtn = document.getElementById("startVersusBtn");
+        startBtn.innerText = "▶ 开始对战";
+        startBtn.onclick = () => {
+            if(gameStarted) return;
+            gameStarted = true;
+            document.getElementById("vsRoundInfo").innerHTML = "第 1 / 5 回合 · 对战进行中";
+            startBtn.innerText = "🔄 重新开局";
+            let nowTime = Date.now();
+            players.top.startRoundTime = nowTime;
+            players.bottom.startRoundTime = nowTime;
+            renderVersusPlayer("top");
+            renderVersusPlayer("bottom");
+            if(versusRefreshTimer) clearInterval(versusRefreshTimer);
+            versusRefreshTimer = setInterval(()=>{ if(versusActive && gameStarted) refreshVersusTimers(); }, 200);
+        };
+        document.getElementById("topSubmit").onclick = ()=>submitVersus("top");
+        document.getElementById("bottomSubmit").onclick = ()=>submitVersus("bottom");
     }
 
     // 事件绑定
-    document.querySelectorAll('.difficulty-btn').forEach(btn=>{
-        btn.addEventListener('click',()=>setDifficulty(btn.getAttribute('data-diff')));
+    document.querySelectorAll(".mode-btn").forEach(btn=>{
+        btn.onclick = ()=>{
+            let mode = btn.dataset.mode;
+            if(mode==="versus") startVersus();
+            else { if(versusActive) exitVersusMode(); else { document.getElementById("singleZone").classList.remove("hide"); document.getElementById("versusZone").classList.remove("show"); document.getElementById("rankArea").style.display = "block"; } }
+            document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
+            btn.classList.add("active");
+            if(!versusActive) refreshLeaderboard();
+        };
     });
-    quizModeBtn.addEventListener('click', onQuizModeClick);
-    skipBtn.addEventListener('click', handleSkipOrRefresh);
-    practiceSkipBtn.addEventListener('click', handleSkipOrRefresh);
-    submitBtn.addEventListener('click', handleVerify);
-    modalConfirmBtn.addEventListener('click', confirmStudentInfo);
-    modalCancelBtn.addEventListener('click', closeModal);
-    modalOverlay.addEventListener('click',(e)=>{ if(e.target===modalOverlay) closeModal(); });
+    document.querySelectorAll(".diff-btn").forEach(btn=>{
+        btn.onclick = () => {
+            if(versusActive && gameStarted) { showMessage("singleMsg","对战中无法切换难度",true); return; }
+            currentDifficulty = btn.dataset.diff;
+            document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "🏅 简单模式排行榜" : "🏅 困难模式排行榜";
+            if(!versusActive){
+                generateSingleGame();
+                let need = currentDifficulty==="easy"?2:3;
+                singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+                singleCardData.forEach(c=>c.used=false);
+                renderSingleCards(); renderSingleSlots(); renderOps();
+                refreshLeaderboard();
+            } else {
+                if(!gameStarted){
+                    generateSharedGame();
+                    let slotCnt = currentDifficulty==="easy"?2:3;
+                    let opCnt = currentDifficulty==="easy"?1:2;
+                    players.top.curSlots = Array(slotCnt).fill(null);
+                    players.top.curOps = Array(opCnt).fill(null);
+                    players.bottom.curSlots = Array(slotCnt).fill(null);
+                    players.bottom.curOps = Array(opCnt).fill(null);
+                    players.top.cardsUsed = [false,false,false,false];
+                    players.bottom.cardsUsed = [false,false,false,false];
+                    players.top.gameCards = [...sharedCards];
+                    players.bottom.gameCards = [...sharedCards];
+                    players.top.roundSubmitted = false;
+                    players.bottom.roundSubmitted = false;
+                    renderVersusPlayer("top");
+                    renderVersusPlayer("bottom");
+                }
+            }
+        };
+    });
+    document.getElementById("submitSingle").onclick = onSingleVerify;
+    document.getElementById("skipPractice").onclick = ()=>{ if(!isQuizMode){ generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); } };
+    document.getElementById("quizBtn").onclick = startQuiz;
+    document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
+    document.getElementById("modalConfirm").onclick = ()=>{ let cls = document.getElementById("classSelect").value; let name = document.getElementById("studentNameInput").value.trim(); if(!name) return; currentStudent = { class: cls, name: name }; document.getElementById("infoModal").classList.remove("active"); if(!isQuizMode) startQuiz(); else refreshLeaderboard(); };
+    document.getElementById("modalCancel").onclick = ()=> document.getElementById("infoModal").classList.remove("active");
 
-    function init() {
-        isQuizActive=false; quizPanel.classList.add('hide');
-        quizModeBtn.disabled=false; quizModeBtn.classList.remove('disabled-btn'); quizModeBtn.textContent='🏆 答题模式';
-        setDifficulty('easy');
-        startLeaderboardRefresh();
-    }
-    init();
+    // 初始化
+    generateSingleGame();
+    let need = currentDifficulty==="easy"?2:3;
+    singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+    renderSingleCards(); renderSingleSlots(); renderOps();
+    document.querySelector(".mode-btn[data-mode='single']").classList.add("active");
+    refreshLeaderboard();
 </script>
 </body>
 </html>
