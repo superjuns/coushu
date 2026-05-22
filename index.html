@@ -295,7 +295,29 @@
         }
         .check-btn:active { transform: scale(0.97); }
 
-        /* 排行榜区域：一行两列（左列1-5名，右列6-10名） + 实时排名卡片 */
+        /* 消息反馈区域 */
+        .message-area {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 60px;
+            background: #f0f8ec;
+            color: #2d6a4f;
+            transition: 0.2s;
+        }
+        .message-area.error {
+            background: #ffe0e0;
+            color: #c0392b;
+        }
+        .message-area.success {
+            background: #d8f3dc;
+            color: #2d6a4f;
+        }
+        .hide-message { display: none; }
+
+        /* 排行榜区域：一行两列 */
         .rank-wrapper {
             display: flex;
             gap: 16px;
@@ -323,7 +345,6 @@
             color: #2c6e4f;
             margin: 0;
         }
-        /* 两列布局 */
         .two-columns {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -356,7 +377,6 @@
         .rank-time { font-family: monospace; font-weight: 600; font-size: 0.7rem; color: #d97747; }
         .empty-rank-placeholder { text-align: center; padding: 20px; color: #9fb7ab; font-size: 0.75rem; background: #ffffff; border-radius: 40px; border: 1px solid #eef3ef; }
 
-        /* 实时排名卡片 */
         .live-rank-col {
             flex: 1;
             min-width: 200px;
@@ -474,7 +494,10 @@
         <button class="check-btn" id="submitBtn">✔ 验证算式 ✔</button>
     </div>
 
-    <!-- 排行榜区域：一行两列（左1-5，右6-10） + 实时排名卡片 -->
+    <!-- 游戏反馈消息区域 -->
+    <div id="messageBox" class="message-area hide-message"></div>
+
+    <!-- 排行榜区域 -->
     <div class="rank-wrapper">
         <div class="rank-main">
             <div class="rank-header">
@@ -525,6 +548,7 @@
     const leftRankCol = document.getElementById('leftRankCol');
     const rightRankCol = document.getElementById('rightRankCol');
     const liveRankContent = document.getElementById('liveRankContent');
+    const messageBox = document.getElementById('messageBox');
 
     const modalOverlay = document.getElementById('infoModal');
     const studentClassSelect = document.getElementById('studentClass');
@@ -547,6 +571,22 @@
     let startTime = 0, timerInterval = null;
     let currentStudent = { class: '', name: '' };
     let leaderboardTimer = null;
+
+    // 显示反馈消息（自动消失）
+    let messageTimeout = null;
+    function showMessage(msg, isError = false) {
+        if (messageTimeout) clearTimeout(messageTimeout);
+        messageBox.textContent = msg;
+        messageBox.classList.remove('hide-message', 'success', 'error');
+        if (isError) {
+            messageBox.classList.add('error');
+        } else {
+            messageBox.classList.add('success');
+        }
+        messageTimeout = setTimeout(() => {
+            messageBox.classList.add('hide-message');
+        }, 2500);
+    }
 
     // 获取当前难度的 API 基础地址
     function getApiBase() {
@@ -579,7 +619,7 @@
         }
     }
 
-    // 渲染排行榜（一行两列：左列1-5，右列6-10）
+    // 渲染排行榜（一行两列）
     async function renderCurrentLeaderboard() {
         const records = await fetchCurrentLeaderboard();
         const titleText = currentDifficulty === 'easy' ? '✨ 简单模式排行榜' : '🔥 困难模式排行榜';
@@ -588,7 +628,6 @@
         const leftItems = records.slice(0, 5);
         const rightItems = records.slice(5, 10);
         
-        // 渲染左列
         if (leftItems.length === 0) {
             leftRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
         } else {
@@ -617,7 +656,6 @@
             leftRankCol.innerHTML = leftHtml;
         }
         
-        // 渲染右列
         if (rightItems.length === 0) {
             rightRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
         } else {
@@ -642,7 +680,7 @@
         }
     }
 
-    // 获取当前用户的实时排名（基于当前难度）
+    // 获取当前用户的实时排名
     async function updateLiveRank() {
         if (!currentStudent.name || !currentStudent.class) {
             liveRankContent.innerHTML = '未登录或暂无成绩<br>点击「答题模式」开始挑战';
@@ -698,7 +736,7 @@
         }
     }
 
-    // 刷新整个排行榜区域（榜单+实时排名）
+    // 刷新整个排行榜区域
     async function refreshAllRankings() {
         await renderCurrentLeaderboard();
         await updateLiveRank();
@@ -707,12 +745,11 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
     function startLeaderboardRefresh() { if(leaderboardTimer) clearInterval(leaderboardTimer); refreshAllRankings(); leaderboardTimer = setInterval(refreshAllRankings, 30000); }
 
-    function showMessage(msg, isError=false) { console.log(msg); }
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
     function startTimer() { stopTimer(); startTime=Date.now(); timerInterval=setInterval(()=>{ if(isQuizActive) timerDisplay.textContent = Math.floor((Date.now()-startTime)/1000)+' s'; },200); }
     function updateQuizUI() { progressDisplay.innerHTML = `✅ ${correctCount} / ${TOTAL_QUIZ}`; }
 
-    // 提交成绩到对应的 API
+    // 提交成绩
     async function sendGameData(correct, total, seconds, difficulty, completed, className, studentName) {
         if(!completed) return;
         const apiBase = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
@@ -743,6 +780,7 @@
         isQuizActive=false; stopTimer();
         if(full) {
             sendGameData(correctCount, TOTAL_QUIZ, elapsed, currentDifficulty, true, currentStudent.class, currentStudent.name);
+            showMessage(`🎉 答题完成！ 答对 ${correctCount} 题，用时 ${elapsed} 秒`, false);
         }
         correctCount=0; totalCompleted=0; updateQuizUI(); timerDisplay.textContent='0 s';
         quizPanel.classList.add('hide');
@@ -811,7 +849,12 @@
 
     function quizCompleteOne(isCorrect=true) {
         if(!isQuizActive || totalCompleted>=TOTAL_QUIZ) return;
-        if(isCorrect) correctCount++;
+        if(isCorrect) {
+            correctCount++;
+            showMessage(`✅ 恭喜！回答正确！ (${totalCompleted+1}/${TOTAL_QUIZ})`, false);
+        } else {
+            showMessage(`❌ 答错了，继续加油！ (${totalCompleted+1}/${TOTAL_QUIZ})`, true);
+        }
         totalCompleted++;
         updateQuizUI();
         if(totalCompleted===TOTAL_QUIZ) { finishQuiz(true); return; }
@@ -822,18 +865,18 @@
         const values = slotsData.map(s=>s?.value);
         if(values.includes(undefined)) return null;
         if(currentDifficulty==='easy') {
-            if(operators[0] === null) return null;
+            if(operators[0] === null) { showMessage('请先选择运算符（+ 或 -）', true); return null; }
             let a=values[0], b=values[1];
             if(operators[0]==='+') return a+b;
-            let diff=a-b; if(diff<0) return null;
+            let diff=a-b; if(diff<0) { showMessage('减法结果不能为负数', true); return null; }
             return diff;
         } else {
-            if(operators[0]===null || operators[1]===null) return null;
+            if(operators[0]===null || operators[1]===null) { showMessage('请先选择两个运算符', true); return null; }
             let step=values[0];
             for(let i=0;i<operators.length;i++) {
                 let nxt=values[i+1];
                 if(operators[i]==='+') step+=nxt; else step-=nxt;
-                if(step<0) return null;
+                if(step<0){ showMessage('运算过程出现负数', true); return null; }
             } return step;
         }
     }
@@ -841,7 +884,7 @@
     function validateSlotsFilled() {
         let need = currentDifficulty==='easy'?2:3;
         let filled = slotsData.filter(s=>s!==null).length;
-        if(filled!==need) return false;
+        if(filled!==need){ showMessage(`请放置 ${need} 张扑克牌到算式格`, true); return false; }
         return true;
     }
 
@@ -850,7 +893,12 @@
         let res = computeCurrentExpression(); if(res===null) return;
         let correct = (res===targetNumber);
         if(!isQuizActive) {
-            if(correct) { refreshGame(true); }
+            if(correct) {
+                showMessage(`✅ 恭喜！答对了！`, false);
+                refreshGame(true);
+            } else {
+                showMessage(`❌ 答错了，结果是 ${res}，目标是 ${targetNumber}`, true);
+            }
             return;
         }
         if(totalCompleted >= TOTAL_QUIZ) { finishQuiz(true); return; }
@@ -858,19 +906,25 @@
     }
 
     function handleSkipOrRefresh() {
-        if(!isQuizActive) { refreshGame(true); }
-        else { if(totalCompleted < TOTAL_QUIZ) quizCompleteOne(false); }
+        if(!isQuizActive) { refreshGame(true); showMessage(`🃏 换一组牌`, false); }
+        else { 
+            if(totalCompleted < TOTAL_QUIZ) {
+                showMessage(`⏩ 跳过本题`, false);
+                quizCompleteOne(false);
+            }
+        }
     }
 
     function autoFillCard(cardId) {
         const card = cardDataList.find(c=>c.id===cardId);
-        if(!card || card.used) return false;
+        if(!card || card.used) { showMessage('这张牌已被使用', true); return false; }
         const emptyIndex = slotsData.findIndex(slot => slot === null);
-        if(emptyIndex === -1) return false;
+        if(emptyIndex === -1) { showMessage('算式格已满，请先移除其他卡片', true); return false; }
         slotsData[emptyIndex] = { cardId: card.id, value: card.value };
         card.used = true;
         renderCards();
         renderEquationArea();
+        showMessage(`将 ${card.value} 放入第${emptyIndex+1}格`, false);
         return true;
     }
 
@@ -882,6 +936,7 @@
             slotsData[slotIndex] = null;
             renderCards();
             renderEquationArea();
+            showMessage(`已从算式格移除`, false);
         }
     }
 
@@ -890,6 +945,7 @@
         operators[idx] = op;
         renderOperatorCircles();
         renderEquationArea();
+        showMessage(`已选择${op==='+'?'加法':'减法'}运算符`, false);
     }
 
     function renderOperatorCircles() {
@@ -978,6 +1034,7 @@
                     }
                     card.used = false;
                     renderCards(); renderEquationArea();
+                    showMessage(`已从算式格移除`, false);
                 } else {
                     autoFillCard(card.id);
                 }
@@ -986,7 +1043,7 @@
         });
     }
 
-    // 切换难度时刷新所有相关数据
+    // 切换难度
     async function setDifficulty(diff) {
         if(isQuizActive) return;
         currentDifficulty = diff;
@@ -1006,6 +1063,7 @@
         quizPanel.classList.remove('hide');
         quizModeBtn.classList.add('disabled-btn'); quizModeBtn.disabled=true; quizModeBtn.textContent='⏳ 答题中';
         refreshGame(true);
+        showMessage(`📢 答题开始！共5题`, false);
     }
     function openInfoModal() { studentNameInput.value=''; studentClassSelect.value='1'; modalOverlay.classList.add('active'); }
     function closeModal() { modalOverlay.classList.remove('active'); }
