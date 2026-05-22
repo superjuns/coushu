@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>扑克牌凑数 · 双榜并行 | 实时排名卡片</title>
+    <title>扑克牌凑数 · 双榜分离 | 独立API</title>
     <style>
         * {
             box-sizing: border-box;
@@ -36,24 +36,11 @@
         h1 {
             text-align: center;
             font-size: 1.6rem;
-            margin: 0 0 4px 0;
+            margin: 0 0 10px 0;
             color: #3b7c5e;
             font-weight: 600;
         }
 
-        .sub {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #6c8b7c;
-            background: #edf4f0;
-            display: inline-block;
-            width: 100%;
-            padding: 4px;
-            border-radius: 30px;
-            margin-bottom: 14px;
-        }
-
-        /* 第一行：难度切换 + 答题按钮 */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -103,7 +90,6 @@
             opacity: 0.8;
         }
 
-        /* 目标数字独立区域 - 位于换一组牌按钮上方 */
         .target-section {
             display: flex;
             flex-direction: column;
@@ -113,27 +99,27 @@
         .target-number {
             background: #f2d9b0;
             border-radius: 60px;
-            padding: 10px 32px;
-            font-size: 2rem;
+            padding: 8px 28px;
+            font-size: 1.8rem;
             font-weight: 800;
             color: #3f2e1c;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .practice-skip-btn {
             background: #bda27e;
             border: none;
             color: white;
             font-weight: 600;
-            padding: 8px 20px;
+            padding: 6px 18px;
             border-radius: 40px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             width: 100%;
-            max-width: 200px;
+            max-width: 180px;
         }
 
         .quiz-panel {
@@ -309,18 +295,6 @@
         }
         .check-btn:active { transform: scale(0.97); }
 
-        .message-area {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #5c7c66;
-            background: #f5f8f2;
-            padding: 5px 12px;
-            border-radius: 40px;
-        }
-        
-        /* 实时排名卡片 */
         .live-rank-card {
             background: #eef6f0;
             border-radius: 28px;
@@ -353,7 +327,7 @@
             color: #8aa89a;
             margin-top: 6px;
         }
-        
+
         footer {
             text-align: center;
             margin-top: 12px;
@@ -362,7 +336,6 @@
         }
         .hide { display: none !important; }
 
-        /* 三列布局：困难榜、简单榜、实时排名卡片 */
         .leaderboard-row {
             display: flex;
             gap: 16px;
@@ -452,16 +425,14 @@
             .operator-placeholder { width: min(45px, 12vw); height: min(45px, 12vw); font-size: 1.3rem; }
             .op-circle { width: 48px; height: 48px; font-size: 1.5rem; }
             .check-btn { padding: 8px 20px; font-size: 0.9rem; }
-            .target-number { font-size: 1.6rem; padding: 8px 24px; }
+            .target-number { font-size: 1.5rem; padding: 6px 20px; }
         }
     </style>
 </head>
 <body>
 <div class="game-container">
     <h1>🃏 凑数挑战</h1>
-    <div class="sub">👆 点击扑克牌自动填入第一个空位 | 点击算式数字移除</div>
 
-    <!-- 第一行：左侧难度切换，右侧答题模式按钮 -->
     <div class="top-bar">
         <div class="difficulty-switch">
             <button class="difficulty-btn" data-diff="easy">✨简单</button>
@@ -470,14 +441,12 @@
         <button class="quiz-mode-btn" id="quizModeBtn">🏆 答题模式</button>
     </div>
 
-    <!-- 目标数字独立区域，位于换一组牌按钮上方 -->
     <div class="target-section">
         <div class="target-number">🎯 目标 <span id="targetNum">14</span></div>
         <button class="practice-skip-btn" id="practiceSkipBtn">🔄 换一组牌</button>
     </div>
 
-    <!-- 答题模式专用面板（答题时显示计时和进度） -->
-    <div class="quiz-panel" id="quizPanel">
+    <div class="quiz-panel hide" id="quizPanel">
         <span class="quiz-timer" id="timerDisplay">0 s</span>
         <span class="quiz-progress" id="progressDisplay">✅ 0/5</span>
         <button class="skip-btn" id="skipBtn">⏩跳过</button>
@@ -492,9 +461,7 @@
     <div class="action-buttons">
         <button class="check-btn" id="submitBtn">✔ 验证算式 ✔</button>
     </div>
-    <div class="message-area" id="messageBox">💡 点击扑克牌自动填入第一个空位，点击算式中的数字可移除</div>
 
-    <!-- 三列布局：困难榜、简单榜、实时排名卡片 -->
     <div class="leaderboard-row">
         <div class="leaderboard-col">
             <div class="leaderboard-header"><h3>🔥 困难模式排行榜</h3></div>
@@ -508,11 +475,11 @@
             <div id="liveRankCard" class="live-rank-card">
                 <div class="live-rank-title">📊 玩家实时排名</div>
                 <div class="live-rank-content" id="liveRankContent">未登录或暂无成绩</div>
-                <div class="live-rank-note">⭐ 完成答题挑战后自动更新排名</div>
+                <div class="live-rank-note">⭐ 完成答题后自动更新</div>
             </div>
         </div>
     </div>
-    <footer>➖ 减法结果非负 | 答题模式共5题，正确/错误/跳过均计为完成一题 | 完成后显示实时排名</footer>
+    <footer>减法结果非负 | 答题模式共5题 | 正确/错误/跳过均计为完成一题</footer>
 </div>
 
 <div id="infoModal" class="modal-overlay">
@@ -525,6 +492,10 @@
 </div>
 
 <script>
+    // ---------- API 配置（按难度分离）----------
+    const API_BASE_EASY = "https://quickform.cn/api/qo3ux2czpi";
+    const API_BASE_HARD = "https://quickform.cn/api/q12gcimniu";
+
     // DOM 元素
     const targetSpan = document.getElementById('targetNum');
     const cardsArea = document.getElementById('cardsArea');
@@ -532,7 +503,6 @@
     const timerDisplay = document.getElementById('timerDisplay');
     const progressDisplay = document.getElementById('progressDisplay');
     const submitBtn = document.getElementById('submitBtn');
-    const messageBox = document.getElementById('messageBox');
     const quizPanel = document.getElementById('quizPanel');
     const skipBtn = document.getElementById('skipBtn');
     const practiceSkipBtn = document.getElementById('practiceSkipBtn');
@@ -563,29 +533,93 @@
     let currentStudent = { class: '', name: '' };
     let leaderboardTimer = null;
 
-    const API_ALL_URL = "https://quickform.cn/api/qo3ux2czpi/all";
-    const API_POST_URL = "https://quickform.cn/api/qo3ux2czpi";
+    // 根据当前难度获取对应的 API 基础地址
+    function getApiBase() {
+        return currentDifficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
+    }
 
-    // 获取当前用户的排名
-    async function updateLiveRank() {
-        if (!currentStudent.name || !currentStudent.class) {
-            liveRankContent.innerHTML = '未登录或暂无成绩<br>请点击「答题模式」开始挑战';
-            return;
-        }
+    // 获取当前难度的排行榜数据（简单模式从 qo3ux2czpi 拉取，困难模式从 q12gcimniu 拉取）
+    async function fetchLeaderboardByDifficulty(difficulty) {
+        const base = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
+        const allUrl = base + '/all';
         try {
-            const res = await fetch(API_ALL_URL);
-            if (!res.ok) throw new Error();
+            const res = await fetch(allUrl, { cache: 'no-cache' });
+            if (!res.ok) return [];
             const json = await res.json();
             const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            
             const records = [];
             for (let item of submissions) {
                 let correct = item.correctCount ?? item.correct ?? 0;
                 let seconds = item.timeSeconds ?? item.time ?? 0;
-                let diff = item.difficulty || 'easy';
+                let className = item.class || item.className || '';
+                let studentName = item.name || item.studentName || '';
+                if (className && studentName && correct !== undefined) {
+                    records.push({ correct, seconds, className: String(className), studentName: String(studentName) });
+                }
+            }
+            records.sort((a,b) => a.correct !== b.correct ? b.correct - a.correct : a.seconds - b.seconds);
+            return records;
+        } catch(e) {
+            return [];
+        }
+    }
+
+    // 渲染双排行榜（简单榜和困难榜分别从不同 API 获取）
+    async function fetchBothLeaderboards() {
+        // 简单榜（使用 qo3ux2czpi）
+        const easyRecords = await fetchLeaderboardByDifficulty('easy');
+        const topEasy = easyRecords.slice(0,5);
+        if (!topEasy.length) {
+            easyLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
+        } else {
+            let html = '';
+            topEasy.forEach((item, idx) => {
+                let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
+                let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
+                html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
+            });
+            easyLeaderboardDiv.innerHTML = html;
+        }
+
+        // 困难榜（使用 q12gcimniu）
+        const hardRecords = await fetchLeaderboardByDifficulty('hard');
+        const topHard = hardRecords.slice(0,5);
+        if (!topHard.length) {
+            hardLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
+        } else {
+            let html = '';
+            topHard.forEach((item, idx) => {
+                let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
+                let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
+                html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
+            });
+            hardLeaderboardDiv.innerHTML = html;
+        }
+
+        // 更新实时排名（基于当前难度）
+        await updateLiveRank();
+    }
+
+    // 获取当前用户的排名（根据当前难度使用对应的 API）
+    async function updateLiveRank() {
+        if (!currentStudent.name || !currentStudent.class) {
+            liveRankContent.innerHTML = '未登录或暂无成绩<br>点击「答题模式」开始挑战';
+            return;
+        }
+        const base = getApiBase();
+        const allUrl = base + '/all';
+        try {
+            const res = await fetch(allUrl, { cache: 'no-cache' });
+            if (!res.ok) throw new Error();
+            const json = await res.json();
+            const submissions = json.submissions || (Array.isArray(json) ? json : []);
+            const records = [];
+            for (let item of submissions) {
+                let correct = item.correctCount ?? item.correct ?? 0;
+                let seconds = item.timeSeconds ?? item.time ?? 0;
                 let name = item.name || item.studentName || '';
                 let cls = item.class || item.className || '';
-                if (diff === currentDifficulty && name && cls) {
+                if (name && cls) {
                     records.push({ correct, seconds, name, class: cls });
                 }
             }
@@ -622,81 +656,37 @@
         }
     }
 
-    async function fetchBothLeaderboards() {
-        try {
-            const res = await fetch(API_ALL_URL);
-            if (!res.ok) throw new Error();
-            const json = await res.json();
-            const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            
-            const easyRecords = [];
-            const hardRecords = [];
-            
-            for (let item of submissions) {
-                let correct = item.correctCount ?? item.correct ?? 0;
-                let seconds = item.timeSeconds ?? item.time ?? 0;
-                let className = item.class || item.className || '';
-                let studentName = item.name || item.studentName || '';
-                let diff = item.difficulty || 'easy';
-                if (className && studentName && correct !== undefined) {
-                    const record = { correct, seconds, className: String(className), studentName: String(studentName) };
-                    if (diff === 'easy') easyRecords.push(record);
-                    else if (diff === 'hard') hardRecords.push(record);
-                }
-            }
-            
-            easyRecords.sort((a,b) => a.correct !== b.correct ? b.correct - a.correct : a.seconds - b.seconds);
-            hardRecords.sort((a,b) => a.correct !== b.correct ? b.correct - a.correct : a.seconds - b.seconds);
-            const topEasy = easyRecords.slice(0,5);
-            const topHard = hardRecords.slice(0,5);
-            
-            if (!topEasy.length) {
-                easyLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
-            } else {
-                let html = '';
-                topEasy.forEach((item, idx) => {
-                    let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
-                    let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
-                    html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
-                });
-                easyLeaderboardDiv.innerHTML = html;
-            }
-            
-            if (!topHard.length) {
-                hardLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
-            } else {
-                let html = '';
-                topHard.forEach((item, idx) => {
-                    let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
-                    let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
-                    html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
-                });
-                hardLeaderboardDiv.innerHTML = html;
-            }
-            
-            await updateLiveRank();
-        } catch(e) {
-            easyLeaderboardDiv.innerHTML = '<div class="empty-rank">⚠️ 加载失败</div>';
-            hardLeaderboardDiv.innerHTML = '<div class="empty-rank">⚠️ 加载失败</div>';
-        }
-    }
-
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
     function startLeaderboardRefresh() { if(leaderboardTimer) clearInterval(leaderboardTimer); fetchBothLeaderboards(); leaderboardTimer = setInterval(fetchBothLeaderboards, 30000); }
 
-    function showMessage(msg, isError=false) { messageBox.innerHTML = msg; messageBox.style.color = isError ? '#c75c3e' : '#538e6e'; setTimeout(()=>{ if(messageBox.innerHTML===msg) messageBox.style.color='#5c7c66'; },2000); }
+    function showMessage(msg, isError=false) { console.log(msg); }
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
     function startTimer() { stopTimer(); startTime=Date.now(); timerInterval=setInterval(()=>{ if(isQuizActive) timerDisplay.textContent = Math.floor((Date.now()-startTime)/1000)+' s'; },200); }
     function updateQuizUI() { progressDisplay.innerHTML = `✅ ${correctCount} / ${TOTAL_QUIZ}`; }
 
+    // 提交成绩到对应的 API（简单模式使用 qo3ux2czpi，困难模式使用 q12gcimniu）
     async function sendGameData(correct, total, seconds, difficulty, completed, className, studentName) {
         if(!completed) return;
+        const apiBase = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
         try {
-            await fetch(API_POST_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ event:"quiz_completed", correctCount:correct, totalQuestions:total, timeSeconds:seconds, difficulty, class:className, name:studentName, timestamp:new Date().toISOString(), game:"poker_math_20" }) });
-            showMessage(`✅ ${studentName} 成绩已提交！`, false);
+            await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "quiz_completed",
+                    correctCount: correct,
+                    totalQuestions: total,
+                    timeSeconds: seconds,
+                    difficulty,
+                    class: className,
+                    name: studentName,
+                    timestamp: new Date().toISOString(),
+                    game: "poker_math_20"
+                })
+            });
             await fetchBothLeaderboards();
             await updateLiveRank();
-        } catch(e) { showMessage('网络问题，成绩未提交', true); }
+        } catch(e) {}
     }
 
     function finishQuiz(completed=true) {
@@ -705,14 +695,12 @@
         const full = completed && totalCompleted >= TOTAL_QUIZ;
         isQuizActive=false; stopTimer();
         if(full) {
-            showMessage(`🏆 答题完成！ ${currentStudent.name} (${currentStudent.class}) 答对 ${correctCount} 题，用时 ${elapsed} 秒`);
             sendGameData(correctCount, TOTAL_QUIZ, elapsed, currentDifficulty, true, currentStudent.class, currentStudent.name);
         }
         correctCount=0; totalCompleted=0; updateQuizUI(); timerDisplay.textContent='0 s';
-        quizPanel.classList.add('hide'); 
+        quizPanel.classList.add('hide');
         quizModeBtn.classList.remove('disabled-btn'); quizModeBtn.disabled=false; quizModeBtn.textContent='🏆 答题模式';
         refreshGame(true);
-        if(!full) showMessage('练习模式');
     }
 
     function clearAllSlots() {
@@ -781,24 +769,24 @@
         updateQuizUI();
         if(totalCompleted===TOTAL_QUIZ) { finishQuiz(true); return; }
         refreshGame(true);
-        showMessage(isCorrect ? `🎉 正确！ (${totalCompleted}/${TOTAL_QUIZ})` : `❌ 错误！ (${totalCompleted}/${TOTAL_QUIZ})`, !isCorrect);
     }
 
     function computeCurrentExpression() {
         const values = slotsData.map(s=>s?.value);
         if(values.includes(undefined)) return null;
         if(currentDifficulty==='easy') {
-            if(operators[0] === null) { showMessage('请先选择运算符', true); return null; }
+            if(operators[0] === null) return null;
             let a=values[0], b=values[1];
             if(operators[0]==='+') return a+b;
-            let diff=a-b; if(diff<0){ showMessage('减法结果不能为负数',true); return null; } return diff;
+            let diff=a-b; if(diff<0) return null;
+            return diff;
         } else {
-            if(operators[0]===null || operators[1]===null) { showMessage('请先选择两个运算符', true); return null; }
+            if(operators[0]===null || operators[1]===null) return null;
             let step=values[0];
             for(let i=0;i<operators.length;i++) {
                 let nxt=values[i+1];
                 if(operators[i]==='+') step+=nxt; else step-=nxt;
-                if(step<0){ showMessage('运算过程出现负数',true); return null; }
+                if(step<0) return null;
             } return step;
         }
     }
@@ -806,7 +794,7 @@
     function validateSlotsFilled() {
         let need = currentDifficulty==='easy'?2:3;
         let filled = slotsData.filter(s=>s!==null).length;
-        if(filled!==need){ showMessage(`请放置 ${need} 张扑克牌`,true); return false; }
+        if(filled!==need) return false;
         return true;
     }
 
@@ -815,8 +803,7 @@
         let res = computeCurrentExpression(); if(res===null) return;
         let correct = (res===targetNumber);
         if(!isQuizActive) {
-            if(correct) { showMessage(`✅ 正确！刷新`); refreshGame(true); }
-            else showMessage(`❌ 结果=${res}，目标=${targetNumber}`,true);
+            if(correct) { refreshGame(true); }
             return;
         }
         if(totalCompleted >= TOTAL_QUIZ) { finishQuiz(true); return; }
@@ -824,22 +811,19 @@
     }
 
     function handleSkipOrRefresh() {
-        if(!isQuizActive) { refreshGame(true); showMessage(`🃏 换一组牌`); }
-        else { 
-            if(totalCompleted < TOTAL_QUIZ) quizCompleteOne(false); 
-        }
+        if(!isQuizActive) { refreshGame(true); }
+        else { if(totalCompleted < TOTAL_QUIZ) quizCompleteOne(false); }
     }
 
     function autoFillCard(cardId) {
         const card = cardDataList.find(c=>c.id===cardId);
-        if(!card || card.used) { showMessage('这张牌已被使用',true); return false; }
+        if(!card || card.used) return false;
         const emptyIndex = slotsData.findIndex(slot => slot === null);
-        if(emptyIndex === -1) { showMessage('算式格已满，请先移除其他卡片',true); return false; }
+        if(emptyIndex === -1) return false;
         slotsData[emptyIndex] = { cardId: card.id, value: card.value };
         card.used = true;
         renderCards();
         renderEquationArea();
-        showMessage(`将 ${card.value} 放入第${emptyIndex+1}格`, false);
         return true;
     }
 
@@ -851,26 +835,7 @@
             slotsData[slotIndex] = null;
             renderCards();
             renderEquationArea();
-            showMessage(`已从算式格移除`, false);
         }
-    }
-
-    function removeCardFromAllSlots(cardId) {
-        let removed = false;
-        for(let i=0;i<slotsData.length;i++) {
-            if(slotsData[i] && slotsData[i].cardId === cardId) {
-                slotsData[i] = null;
-                removed = true;
-            }
-        }
-        if(removed) {
-            const card = cardDataList.find(c=>c.id===cardId);
-            if(card) card.used = false;
-            renderCards();
-            renderEquationArea();
-            showMessage(`已从算式格移除`, false);
-        }
-        return removed;
     }
 
     function selectOperator(idx, op) {
@@ -878,7 +843,6 @@
         operators[idx] = op;
         renderOperatorCircles();
         renderEquationArea();
-        showMessage(`已选择${op==='+'?'➕':'➖'}`, false);
     }
 
     function renderOperatorCircles() {
@@ -912,7 +876,6 @@
             slotDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if(slotsData[i]) removeCardFromSlot(i);
-                else showMessage('此位置没有卡片', true);
             });
             slotDiv.addEventListener('dragover', e=>e.preventDefault());
             slotDiv.addEventListener('drop', (e)=>{
@@ -961,7 +924,13 @@
             div.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if(card.used) {
-                    removeCardFromAllSlots(card.id);
+                    for(let i=0;i<slotsData.length;i++) {
+                        if(slotsData[i] && slotsData[i].cardId === card.id) {
+                            slotsData[i] = null;
+                        }
+                    }
+                    card.used = false;
+                    renderCards(); renderEquationArea();
                 } else {
                     autoFillCard(card.id);
                 }
@@ -971,7 +940,7 @@
     }
 
     function setDifficulty(diff) {
-        if(isQuizActive) { showMessage('答题中请结束后切换', true); return; }
+        if(isQuizActive) return;
         currentDifficulty = diff;
         document.querySelectorAll('.difficulty-btn').forEach(btn=>{
             if(btn.getAttribute('data-diff')===diff) btn.classList.add('active');
@@ -985,31 +954,42 @@
 
     function startQuizChallengeInternal() {
         if(isQuizActive) return;
-        resetQuizSession();
         isQuizActive=true; correctCount=0; totalCompleted=0; updateQuizUI(); startTimer();
-        quizPanel.classList.remove('hide'); 
+        quizPanel.classList.remove('hide');
         quizModeBtn.classList.add('disabled-btn'); quizModeBtn.disabled=true; quizModeBtn.textContent='⏳ 答题中';
         refreshGame(true);
-        showMessage(`📢 ${currentStudent.name} (${currentStudent.class}) 答题开始！共5题`);
     }
-    function resetQuizSession() { if(isQuizActive) finishQuiz(false); isQuizActive=false; correctCount=0; totalCompleted=0; updateQuizUI(); timerDisplay.textContent='0 s'; }
     function openInfoModal() { studentNameInput.value=''; studentClassSelect.value='1'; modalOverlay.classList.add('active'); }
     function closeModal() { modalOverlay.classList.remove('active'); }
-    function confirmStudentInfo() { let cls = studentClassSelect.value, name = studentNameInput.value.trim(); if(!name) { alert('请输入姓名'); return; } currentStudent.class=`${cls}班`; currentStudent.name=name; closeModal(); startQuizChallengeInternal(); updateLiveRank(); }
-    function onQuizModeClick() { if(isQuizActive) { showMessage('答题进行中请继续或跳过', true); return; } openInfoModal(); }
+    function confirmStudentInfo() {
+        let cls = studentClassSelect.value + '班';
+        let name = studentNameInput.value.trim();
+        if(!name) { alert('请输入姓名'); return; }
+        currentStudent.class=cls; currentStudent.name=name;
+        closeModal();
+        startQuizChallengeInternal();
+        updateLiveRank();
+    }
+    function onQuizModeClick() {
+        if(isQuizActive) return;
+        openInfoModal();
+    }
+
+    document.querySelectorAll('.difficulty-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>setDifficulty(btn.getAttribute('data-diff')));
+    });
+    quizModeBtn.addEventListener('click', onQuizModeClick);
+    skipBtn.addEventListener('click', handleSkipOrRefresh);
+    practiceSkipBtn.addEventListener('click', handleSkipOrRefresh);
+    submitBtn.addEventListener('click', handleVerify);
+    modalConfirmBtn.addEventListener('click', confirmStudentInfo);
+    modalCancelBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click',(e)=>{ if(e.target===modalOverlay) closeModal(); });
 
     function init() {
-        isQuizActive=false; quizPanel.classList.add('hide'); 
+        isQuizActive=false; quizPanel.classList.add('hide');
         quizModeBtn.disabled=false; quizModeBtn.classList.remove('disabled-btn'); quizModeBtn.textContent='🏆 答题模式';
         setDifficulty('easy');
-        quizModeBtn.addEventListener('click', onQuizModeClick);
-        skipBtn.addEventListener('click', handleSkipOrRefresh);
-        practiceSkipBtn.addEventListener('click', handleSkipOrRefresh);
-        submitBtn.addEventListener('click', handleVerify);
-        document.querySelectorAll('.difficulty-btn').forEach(btn=>btn.addEventListener('click',(e)=>setDifficulty(e.target.getAttribute('data-diff'))));
-        modalConfirmBtn.addEventListener('click', confirmStudentInfo);
-        modalCancelBtn.addEventListener('click', closeModal);
-        modalOverlay.addEventListener('click',(e)=>{ if(e.target===modalOverlay) closeModal(); });
         startLeaderboardRefresh();
     }
     init();
