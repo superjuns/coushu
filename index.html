@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>扑克牌凑数 · 双榜分离 | 独立API</title>
+    <title>扑克牌凑数 · 一行两列排行榜</title>
     <style>
         * {
             box-sizing: border-box;
@@ -295,19 +295,88 @@
         }
         .check-btn:active { transform: scale(0.97); }
 
+        /* 排行榜区域：一行两列（左列1-5名，右列6-10名） + 实时排名卡片 */
+        .rank-wrapper {
+            display: flex;
+            gap: 16px;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .rank-main {
+            flex: 2;
+            background: #fefcf5;
+            border-radius: 28px;
+            border: 1px solid #e8efea;
+            overflow: hidden;
+            min-width: 260px;
+        }
+        .rank-header {
+            padding: 12px 12px 6px;
+            background: #fafbf8;
+            border-bottom: 1px solid #e8efea;
+            text-align: center;
+        }
+        .rank-header h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2c6e4f;
+            margin: 0;
+        }
+        /* 两列布局 */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 12px 10px;
+        }
+        .rank-col-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .rank-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 40px;
+            border: 1px solid #eef3ef;
+        }
+        .rank-left { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex: 2; }
+        .rank-num { font-weight: 800; font-size: 0.9rem; min-width: 36px; color: #c9aa6b; }
+        .rank-num.gold { color: #f5b042; }
+        .rank-num.silver { color: #9bb7d4; }
+        .rank-num.bronze { color: #cd7f56; }
+        .rank-name { font-weight: 700; font-size: 0.8rem; color: #2c5a4a; }
+        .rank-class { background: #eef3ef; padding: 2px 10px; border-radius: 24px; font-size: 0.65rem; color: #45755e; }
+        .rank-stats { display: flex; gap: 12px; align-items: baseline; }
+        .rank-correct { background: #dcfce7; padding: 2px 10px; border-radius: 24px; font-weight: 700; font-size: 0.7rem; color: #2c6e4f; }
+        .rank-time { font-family: monospace; font-weight: 600; font-size: 0.7rem; color: #d97747; }
+        .empty-rank-placeholder { text-align: center; padding: 20px; color: #9fb7ab; font-size: 0.75rem; background: #ffffff; border-radius: 40px; border: 1px solid #eef3ef; }
+
+        /* 实时排名卡片 */
+        .live-rank-col {
+            flex: 1;
+            min-width: 200px;
+        }
         .live-rank-card {
             background: #eef6f0;
             border-radius: 28px;
-            padding: 12px 14px;
-            margin: 8px 0 12px;
+            padding: 14px 16px;
             border-left: 5px solid #699e7c;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .live-rank-title {
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #2c6e4f;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -325,74 +394,16 @@
         .live-rank-note {
             font-size: 0.65rem;
             color: #8aa89a;
-            margin-top: 6px;
+            margin-top: 10px;
         }
 
         footer {
             text-align: center;
-            margin-top: 12px;
+            margin-top: 16px;
             color: #b9c6bc;
             font-size: 0.65rem;
         }
         .hide { display: none !important; }
-
-        .leaderboard-row {
-            display: flex;
-            gap: 16px;
-            margin-top: 14px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-        .leaderboard-col {
-            flex: 1;
-            background: #fefcf5;
-            border-radius: 28px;
-            border: 1px solid #e8efea;
-            overflow: hidden;
-            min-width: 170px;
-        }
-        .live-rank-col {
-            flex: 1;
-            min-width: 170px;
-        }
-        .leaderboard-header {
-            padding: 10px 12px 6px;
-            background: #fafbf8;
-            border-bottom: 1px solid #e8efea;
-            text-align: center;
-        }
-        .leaderboard-header h3 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #2c6e4f;
-            margin: 0;
-        }
-        .leaderboard-list {
-            padding: 6px 6px 10px;
-            max-height: 260px;
-            overflow-y: auto;
-        }
-        .rank-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            margin: 4px 4px;
-            padding: 5px 10px;
-            border-radius: 40px;
-            border: 1px solid #eef3ef;
-        }
-        .rank-left { display: flex; gap: 8px; flex-wrap: wrap; flex: 2; align-items: center; }
-        .rank-num { font-weight: 800; font-size: 0.9rem; min-width: 32px; color: #c9aa6b; }
-        .rank-num.gold { color: #f5b042; }
-        .rank-num.silver { color: #9bb7d4; }
-        .rank-num.bronze { color: #cd7f56; }
-        .rank-name { font-weight: 700; font-size: 0.75rem; color: #2c5a4a; }
-        .rank-class { background: #eef3ef; padding: 1px 8px; border-radius: 24px; font-size: 0.6rem; }
-        .rank-stats { display: flex; gap: 8px; }
-        .rank-correct { background: #dcfce7; padding: 2px 8px; border-radius: 24px; font-weight: 700; font-size: 0.7rem; }
-        .rank-time { font-family: monospace; font-weight: 600; font-size: 0.7rem; color: #d97747; }
-        .empty-rank { text-align: center; padding: 20px; font-size: 0.75rem; color: #9fb7ab; }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -418,8 +429,9 @@
         .modal-btn.confirm { background: #7caf7c; color: white; }
         .modal-btn.cancel { background: #e2e8f0; color: #4a5b52; }
 
-        @media (max-width: 750px) {
-            .leaderboard-row { flex-direction: column; gap: 12px; }
+        @media (max-width: 700px) {
+            .rank-wrapper { flex-direction: column; }
+            .two-columns { grid-template-columns: 1fr; gap: 8px; }
             .card, .slot { width: min(65px, 18vw); height: min(85px, 24vw); }
             .card-number, .slot-value { font-size: 1.5rem; }
             .operator-placeholder { width: min(45px, 12vw); height: min(45px, 12vw); font-size: 1.3rem; }
@@ -462,14 +474,16 @@
         <button class="check-btn" id="submitBtn">✔ 验证算式 ✔</button>
     </div>
 
-    <div class="leaderboard-row">
-        <div class="leaderboard-col">
-            <div class="leaderboard-header"><h3>🔥 困难模式排行榜</h3></div>
-            <div id="hardLeaderboard" class="leaderboard-list"><div class="empty-rank">加载中...</div></div>
-        </div>
-        <div class="leaderboard-col">
-            <div class="leaderboard-header"><h3>✨ 简单模式排行榜</h3></div>
-            <div id="easyLeaderboard" class="leaderboard-list"><div class="empty-rank">加载中...</div></div>
+    <!-- 排行榜区域：一行两列（左1-5，右6-10） + 实时排名卡片 -->
+    <div class="rank-wrapper">
+        <div class="rank-main">
+            <div class="rank-header">
+                <h3 id="currentRankTitle">🔥 困难模式排行榜</h3>
+            </div>
+            <div id="twoColumnRank" class="two-columns">
+                <div class="rank-col-list" id="leftRankCol"></div>
+                <div class="rank-col-list" id="rightRankCol"></div>
+            </div>
         </div>
         <div class="live-rank-col">
             <div id="liveRankCard" class="live-rank-card">
@@ -492,7 +506,7 @@
 </div>
 
 <script>
-    // ---------- API 配置（按难度分离）----------
+    // API 配置（按难度分离）
     const API_BASE_EASY = "https://quickform.cn/api/qo3ux2czpi";
     const API_BASE_HARD = "https://quickform.cn/api/q12gcimniu";
 
@@ -507,8 +521,9 @@
     const skipBtn = document.getElementById('skipBtn');
     const practiceSkipBtn = document.getElementById('practiceSkipBtn');
     const quizModeBtn = document.getElementById('quizModeBtn');
-    const easyLeaderboardDiv = document.getElementById('easyLeaderboard');
-    const hardLeaderboardDiv = document.getElementById('hardLeaderboard');
+    const currentRankTitle = document.getElementById('currentRankTitle');
+    const leftRankCol = document.getElementById('leftRankCol');
+    const rightRankCol = document.getElementById('rightRankCol');
     const liveRankContent = document.getElementById('liveRankContent');
 
     const modalOverlay = document.getElementById('infoModal');
@@ -533,14 +548,14 @@
     let currentStudent = { class: '', name: '' };
     let leaderboardTimer = null;
 
-    // 根据当前难度获取对应的 API 基础地址
+    // 获取当前难度的 API 基础地址
     function getApiBase() {
         return currentDifficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
     }
 
-    // 获取当前难度的排行榜数据（简单模式从 qo3ux2czpi 拉取，困难模式从 q12gcimniu 拉取）
-    async function fetchLeaderboardByDifficulty(difficulty) {
-        const base = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
+    // 获取当前难度的排行榜数据（前10名）
+    async function fetchCurrentLeaderboard() {
+        const base = getApiBase();
         const allUrl = base + '/all';
         try {
             const res = await fetch(allUrl, { cache: 'no-cache' });
@@ -558,49 +573,76 @@
                 }
             }
             records.sort((a,b) => a.correct !== b.correct ? b.correct - a.correct : a.seconds - b.seconds);
-            return records;
+            return records.slice(0, 10);
         } catch(e) {
             return [];
         }
     }
 
-    // 渲染双排行榜（简单榜和困难榜分别从不同 API 获取）
-    async function fetchBothLeaderboards() {
-        // 简单榜（使用 qo3ux2czpi）
-        const easyRecords = await fetchLeaderboardByDifficulty('easy');
-        const topEasy = easyRecords.slice(0,5);
-        if (!topEasy.length) {
-            easyLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
+    // 渲染排行榜（一行两列：左列1-5，右列6-10）
+    async function renderCurrentLeaderboard() {
+        const records = await fetchCurrentLeaderboard();
+        const titleText = currentDifficulty === 'easy' ? '✨ 简单模式排行榜' : '🔥 困难模式排行榜';
+        currentRankTitle.innerText = titleText;
+        
+        const leftItems = records.slice(0, 5);
+        const rightItems = records.slice(5, 10);
+        
+        // 渲染左列
+        if (leftItems.length === 0) {
+            leftRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
         } else {
-            let html = '';
-            topEasy.forEach((item, idx) => {
-                let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
-                let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
-                html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
+            let leftHtml = '';
+            leftItems.forEach((item, idx) => {
+                let medal = '';
+                let rankClass = '';
+                if (idx === 0) { medal = '🥇'; rankClass = 'gold'; }
+                else if (idx === 1) { medal = '🥈'; rankClass = 'silver'; }
+                else if (idx === 2) { medal = '🥉'; rankClass = 'bronze'; }
+                else { medal = `${idx+1}`; }
+                leftHtml += `
+                    <div class="rank-item">
+                        <div class="rank-left">
+                            <div class="rank-num ${rankClass}">${medal}</div>
+                            <div class="rank-name">${escapeHtml(item.studentName)}</div>
+                            <div class="rank-class">${escapeHtml(item.className)}</div>
+                        </div>
+                        <div class="rank-stats">
+                            <span class="rank-correct">✅ ${item.correct}/5</span>
+                            <span class="rank-time">⏱️ ${item.seconds}秒</span>
+                        </div>
+                    </div>
+                `;
             });
-            easyLeaderboardDiv.innerHTML = html;
+            leftRankCol.innerHTML = leftHtml;
         }
-
-        // 困难榜（使用 q12gcimniu）
-        const hardRecords = await fetchLeaderboardByDifficulty('hard');
-        const topHard = hardRecords.slice(0,5);
-        if (!topHard.length) {
-            hardLeaderboardDiv.innerHTML = '<div class="empty-rank">📭 暂无数据</div>';
+        
+        // 渲染右列
+        if (rightItems.length === 0) {
+            rightRankCol.innerHTML = '<div class="empty-rank-placeholder">暂无数据</div>';
         } else {
-            let html = '';
-            topHard.forEach((item, idx) => {
-                let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
-                let rankClass = idx===0?'gold':(idx===1?'silver':(idx===2?'bronze':''));
-                html += `<div class="rank-item"><div class="rank-left"><div class="rank-num ${rankClass}">${medal}</div><div class="rank-name">${escapeHtml(item.studentName)}</div><div class="rank-class">${escapeHtml(item.className)}</div></div><div class="rank-stats"><span class="rank-correct">✅ ${item.correct}/5</span><span class="rank-time">⏱️ ${item.seconds}秒</span></div></div>`;
+            let rightHtml = '';
+            rightItems.forEach((item, idx) => {
+                let rankNum = idx + 6;
+                rightHtml += `
+                    <div class="rank-item">
+                        <div class="rank-left">
+                            <div class="rank-num">${rankNum}</div>
+                            <div class="rank-name">${escapeHtml(item.studentName)}</div>
+                            <div class="rank-class">${escapeHtml(item.className)}</div>
+                        </div>
+                        <div class="rank-stats">
+                            <span class="rank-correct">✅ ${item.correct}/5</span>
+                            <span class="rank-time">⏱️ ${item.seconds}秒</span>
+                        </div>
+                    </div>
+                `;
             });
-            hardLeaderboardDiv.innerHTML = html;
+            rightRankCol.innerHTML = rightHtml;
         }
-
-        // 更新实时排名（基于当前难度）
-        await updateLiveRank();
     }
 
-    // 获取当前用户的排名（根据当前难度使用对应的 API）
+    // 获取当前用户的实时排名（基于当前难度）
     async function updateLiveRank() {
         if (!currentStudent.name || !currentStudent.class) {
             liveRankContent.innerHTML = '未登录或暂无成绩<br>点击「答题模式」开始挑战';
@@ -656,15 +698,21 @@
         }
     }
 
+    // 刷新整个排行榜区域（榜单+实时排名）
+    async function refreshAllRankings() {
+        await renderCurrentLeaderboard();
+        await updateLiveRank();
+    }
+
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
-    function startLeaderboardRefresh() { if(leaderboardTimer) clearInterval(leaderboardTimer); fetchBothLeaderboards(); leaderboardTimer = setInterval(fetchBothLeaderboards, 30000); }
+    function startLeaderboardRefresh() { if(leaderboardTimer) clearInterval(leaderboardTimer); refreshAllRankings(); leaderboardTimer = setInterval(refreshAllRankings, 30000); }
 
     function showMessage(msg, isError=false) { console.log(msg); }
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
     function startTimer() { stopTimer(); startTime=Date.now(); timerInterval=setInterval(()=>{ if(isQuizActive) timerDisplay.textContent = Math.floor((Date.now()-startTime)/1000)+' s'; },200); }
     function updateQuizUI() { progressDisplay.innerHTML = `✅ ${correctCount} / ${TOTAL_QUIZ}`; }
 
-    // 提交成绩到对应的 API（简单模式使用 qo3ux2czpi，困难模式使用 q12gcimniu）
+    // 提交成绩到对应的 API
     async function sendGameData(correct, total, seconds, difficulty, completed, className, studentName) {
         if(!completed) return;
         const apiBase = difficulty === 'easy' ? API_BASE_EASY : API_BASE_HARD;
@@ -684,8 +732,7 @@
                     game: "poker_math_20"
                 })
             });
-            await fetchBothLeaderboards();
-            await updateLiveRank();
+            await refreshAllRankings();
         } catch(e) {}
     }
 
@@ -939,7 +986,8 @@
         });
     }
 
-    function setDifficulty(diff) {
+    // 切换难度时刷新所有相关数据
+    async function setDifficulty(diff) {
         if(isQuizActive) return;
         currentDifficulty = diff;
         document.querySelectorAll('.difficulty-btn').forEach(btn=>{
@@ -949,7 +997,7 @@
         if(currentDifficulty==='easy') { slotsData=[null,null]; operators=[null]; }
         else { slotsData=[null,null,null]; operators=[null,null]; }
         refreshGame(true);
-        updateLiveRank();
+        await refreshAllRankings();
     }
 
     function startQuizChallengeInternal() {
@@ -975,6 +1023,7 @@
         openInfoModal();
     }
 
+    // 事件绑定
     document.querySelectorAll('.difficulty-btn').forEach(btn=>{
         btn.addEventListener('click',()=>setDifficulty(btn.getAttribute('data-diff')));
     });
