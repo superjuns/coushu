@@ -3,1225 +3,764 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>扑克牌凑数 · 亲子对战（手动开始计时）</title>
+    <title>扑克牌凑数 · 数据看板 | 排行榜 & 班级统计</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #c8e0d4 0%, #b2cfc0 100%);
+            background: #f5f9ff;
+            padding: 20px 16px 40px;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', 'Nunito', 'Poppins', system-ui, sans-serif;
-            padding: 16px;
         }
 
-        .game-container {
+        .dashboard {
             max-width: 800px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(2px);
-            border-radius: 56px;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            padding: 20px 18px 24px;
+            margin: 0 auto;
         }
 
-        .game-header {
+        .header {
+            text-align: center;
             margin-bottom: 20px;
         }
-        h1 {
+        .header h1 {
             font-size: 1.6rem;
-            background: linear-gradient(135deg, #2c6e4f, #569e7c);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-align: center;
-            margin-bottom: 12px;
+            color: #699e7c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-weight: 600;
         }
-        .controls-row {
+        .sub {
+            font-size: 0.7rem;
+            color: #78909c;
+            margin-top: 6px;
+        }
+        .refresh-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 0.7rem;
+            color: #78909c;
+        }
+        .refresh-btn {
+            background: #e3f2fd;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #699e7c;
+            transition: 0.1s;
+            font-weight: 500;
+        }
+        .refresh-btn:active {
+            background: #c8e6df;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: white;
+            border: 1px solid #e3f2fd;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #5c6f87;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .tab-btn.active {
+            background: #699e7c;
+            border-color: #699e7c;
+            color: white;
+            box-shadow: 0 2px 6px rgba(105,158,124,0.2);
+        }
+
+        .class-stats {
+            background: white;
+            border-radius: 24px;
+            padding: 12px 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border: 1px solid #e3f2fd;
+        }
+        .stats-scroll {
+            display: inline-flex;
+            gap: 10px;
+        }
+        .class-card {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 8px 14px;
+            min-width: 110px;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #e3f2fd;
+        }
+        .class-card.active {
+            background: #e3f2fd;
+            border-color: #699e7c;
+        }
+        .class-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #699e7c;
+        }
+        .class-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a2c3e;
+        }
+        .class-rate {
+            font-size: 0.6rem;
+            color: #5c9e6b;
+        }
+        .class-avgtime {
+            font-size: 0.55rem;
+            color: #f39c12;
+            margin-top: 2px;
+        }
+
+        .column-control {
+            background: white;
+            border-radius: 40px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 12px;
+            border: 1px solid #e3f2fd;
         }
-        .mode-group, .diff-group {
+        .control-item {
             display: flex;
+            align-items: center;
             gap: 6px;
-            background: #eef3efcc;
-            padding: 4px 8px;
-            border-radius: 60px;
-            backdrop-filter: blur(4px);
-        }
-        .mode-btn, .diff-btn {
-            background: transparent;
-            border: none;
-            font-weight: 700;
             font-size: 0.7rem;
+            color: #5c6f87;
+            cursor: pointer;
+            background: #f8fafc;
             padding: 4px 12px;
             border-radius: 40px;
-            cursor: pointer;
-            color: #3a5e4e;
-            transition: 0.1s;
-            white-space: nowrap;
         }
-        .mode-btn.active, .diff-btn.active {
-            background: #699e7c;
+        .control-item i {
+            color: #699e7c;
+        }
+        .control-item.hidden {
+            background: #f0f4f9;
+            color: #90a4c3;
+        }
+        .best-toggle {
+            background: #e8eaf6;
+            color: #3949ab;
+        }
+        .best-toggle.active {
+            background: #3949ab;
             color: white;
-            box-shadow: 0 2px 6px rgba(105,158,124,0.3);
-        }
-        .quiz-launch {
-            background: #ffb347;
-            border: none;
-            color: white;
-            font-weight: 700;
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.1s;
-        }
-        .quiz-launch:active { transform: scale(0.96); }
-
-        /* 单人区域 */
-        .single-area { display: block; }
-        .single-area.hide { display: none; }
-        .target-panel {
-            background: #efe2c9;
-            border-radius: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 20px;
-            margin: 10px 0;
-        }
-        .target-number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: #fff2e0;
-            padding: 0 18px;
-            border-radius: 60px;
-        }
-        .cards-grid {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 14px 0;
-        }
-        .card {
-            background: #fffef7;
-            width: min(70px, 19vw);
-            height: min(96px, 26vw);
-            border-radius: 18px;
-            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.6rem;
-            color: #c7573a;
-            cursor: pointer;
-        }
-        .card.disabled { opacity: 0.5; background: #e9e5d8; cursor: default; }
-        .operator-row {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin: 10px 0;
-        }
-        .op-circle {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #f5efe2;
-            border: 2px solid #cbdcc2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.7rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .op-circle.active { background: #699e7c; color: white; transform: scale(0.94); }
-        .slots-area {
-            background: #fbf8ef;
-            border-radius: 48px;
-            padding: 12px;
-            margin: 12px 0;
-        }
-        .slots-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .slot {
-            background: #fff6e6;
-            width: min(65px, 18vw);
-            height: min(90px, 25vw);
-            border-radius: 20px;
-            border: 2px dashed #b9cfae;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.7rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .slot.filled { border: 2px solid #8fb37c; background: #fffaf0; }
-        .op-place {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #efeadb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-        }
-        .check-btn {
-            background: #8fb792;
-            width: 70%;
-            border: none;
-            padding: 10px;
-            border-radius: 60px;
-            font-weight: 800;
-            color: white;
-            display: block;
-            margin: 8px auto;
-            cursor: pointer;
         }
 
-        /* 双人对战区（儿童面板旋转180°） */
-        .versus-area { display: none; }
-        .versus-area.show { display: block; }
-        .round-bar {
-            background: #4c6e5b;
-            border-radius: 100px;
-            text-align: center;
-            padding: 8px;
-            color: white;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-        .versus-players { display: flex; flex-direction: column; gap: 28px; }
-        .player-panel {
-            background: rgba(255, 252, 240, 0.95);
-            border-radius: 44px;
-            padding: 16px 12px;
-            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
-            transition: 0.2s;
-        }
-        /* 儿童面板旋转180度（倒置手机看正常） */
-        .player-panel.top {
-            background: linear-gradient(120deg, #fff9e8, #fff2de);
-            border-left: 6px solid #f4b942;
-            transform: rotate(180deg);
-        }
-        .player-panel.bottom {
-            background: linear-gradient(120deg, #f0f8ec, #eef3e6);
-            border-left: 6px solid #699e7c;
-            transform: rotate(0deg);
-        }
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            padding: 0 6px;
-        }
-        .player-name {
-            font-weight: 800;
-            font-size: 1.1rem;
-            background: #ffffffbb;
-            padding: 4px 16px;
-            border-radius: 40px;
-        }
-        .player-target {
-            background: #f3daac;
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        .player-stats {
-            display: flex;
-            gap: 12px;
-            background: #fff4e4;
-            padding: 4px 14px;
-            border-radius: 30px;
-        }
-        .versus-cards {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        .vcard {
+        .data-table {
             background: white;
-            width: min(62px, 16vw);
-            height: min(84px, 23vw);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            cursor: pointer;
+            border-radius: 28px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e3f2fd;
         }
-        .vcard.disabled-vcard { opacity: 0.4; background: #e2ddd0; cursor: default; }
-        .versus-ops {
-            display: flex;
-            justify-content: center;
-            gap: 28px;
-            margin: 10px 0;
-        }
-        .vop {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #f7efdc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid #cfdfc4;
-        }
-        .vop.active { background: #699e7c; color: white; transform: scale(0.94); }
-        .versus-slots {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin: 12px 0;
-            flex-wrap: wrap;
-        }
-        .vslot {
-            background: #fff4e4;
-            width: min(58px, 15vw);
-            height: min(78px, 21vw);
-            border-radius: 18px;
-            border: 2px dashed #b4caa5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .vslot.filled { background: #fdefcf; border: 2px solid #8fb37c; }
-        .vop-place {
-            width: 44px;
-            height: 44px;
-            background: #e6dfcc;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-        }
-        .versus-submit {
-            background: #ffa559;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 60px;
-            font-weight: bold;
-            color: white;
-            width: 65%;
-            margin: 8px auto 0;
-            display: block;
-            cursor: pointer;
-        }
-        .versus-submit.disabled-submit {
-            background: #bbaa88;
-            cursor: not-allowed;
-        }
-        .wait-tip {
-            font-size: 0.7rem;
-            text-align: center;
-            margin-top: 6px;
-            color: #c2822e;
-        }
-        /* 开始对战按钮 - 红色醒目 */
-        .start-versus-btn {
-            background: #e34234;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            margin-top: 16px;
-            width: 100%;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.1s ease;
-        }
-        .start-versus-btn:active { transform: scale(0.96); }
-
-        /* 排行榜 - 强制两列布局 */
-        .rank-wrapper {
-            margin-top: 20px;
-            background: #fef6ea;
-            border-radius: 40px;
-            padding: 12px;
-        }
-        .rank-grid {
+        .table-header {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-        }
-        .rank-item {
-            background: white;
-            border-radius: 40px;
-            padding: 8px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            gap: 6px;
-            flex-wrap: wrap;
-            word-break: break-word;
-        }
-        .rank-left {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            flex: 2;
-        }
-        .rank-num { font-weight: 800; min-width: 32px; }
-        .rank-name { font-weight: 600; }
-        .rank-class { background: #eef3ef; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; white-space: nowrap; }
-        .rank-correct { background: #dcfce7; padding: 2px 8px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
-        .rank-time { font-family: monospace; white-space: nowrap; }
-        .live-rank-content { line-height: 1.5; }
-
-        .message-toast {
-            background: #d9f0da;
-            text-align: center;
-            padding: 8px;
-            border-radius: 60px;
-            margin-top: 8px;
+            grid-template-columns: 0.6fr 0.9fr 1fr 0.8fr 0.7fr 1.2fr;
+            background: #fafcff;
+            padding: 12px 14px;
+            font-size: 0.7rem;
             font-weight: 600;
+            color: #699e7c;
+            border-bottom: 1px solid #e3f2fd;
+            min-width: 650px;
+        }
+        .sortable-header {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sortable-header i {
+            font-size: 0.6rem;
+            color: #64b5f6;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 0.6fr 0.9fr 1fr 0.8fr 0.7fr 1.2fr;
+            padding: 10px 14px;
+            font-size: 0.7rem;
+            border-bottom: 1px solid #eff4fa;
+            align-items: center;
+            min-width: 650px;
+        }
+        .cell {
+            word-break: break-word;
+            color: #2c3e50;
+        }
+        .cell-class {
+            font-weight: 500;
+            color: #699e7c;
+        }
+        .cell-correct {
+            font-weight: 500;
+            color: #5c9e6b;
+        }
+        .rank-badge {
+            background: #eef2fa;
+            border-radius: 40px;
+            padding: 2px 8px;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+        .empty-row {
+            text-align: center;
+            padding: 32px;
+            color: #90a4c3;
+            font-size: 0.75rem;
+        }
+
+        .hide-rank .col-rank,
+        .hide-class .col-class,
+        .hide-name .col-name,
+        .hide-correct .col-correct,
+        .hide-time .col-time,
+        .hide-date .col-date {
             display: none;
         }
-        footer {
+
+        .footer-note {
             text-align: center;
             font-size: 0.6rem;
-            margin-top: 16px;
-            color: #779e89;
-        }
-        .modal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-        }
-        .modal.active { visibility: visible; opacity: 1; }
-        .modal-card {
-            background: white;
-            border-radius: 48px;
-            padding: 24px;
-            width: 280px;
-            text-align: center;
-        }
-        .result-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
-        }
-        .result-card {
-            background: #fff5e6;
-            border-radius: 64px;
-            padding: 28px;
-            text-align: center;
-            max-width: 280px;
-        }
-        button:active { transform: scale(0.96); }
-
-        /* 响应式：小屏幕下仍保持两列，但缩小内边距和字体 */
-        @media (max-width: 550px) {
-            .card, .vcard { width: 55px; height: 75px; font-size: 1.3rem; }
-            .slot, .vslot { width: 50px; height: 68px; font-size: 1.3rem; }
-            .op-circle, .vop { width: 44px; height: 44px; font-size: 1.3rem; }
-            .mode-btn, .diff-btn { padding: 3px 8px; font-size: 0.65rem; }
-            .quiz-launch { padding: 5px 14px; font-size: 0.75rem; }
-            .controls-row { gap: 6px; }
-            .rank-grid {
-                gap: 6px;
-            }
-            .rank-item {
-                padding: 6px 8px;
-                font-size: 0.7rem;
-            }
-            .rank-class, .rank-correct, .rank-time {
-                font-size: 0.6rem;
-                padding: 2px 5px;
-            }
+            color: #90a4c3;
+            padding: 12px 0;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="game-header">
-        <h1>🃏 凑数·对战</h1>
-        <div class="controls-row">
-            <div class="mode-group">
-                <button class="mode-btn" data-mode="single">🎯 单人</button>
-                <button class="mode-btn" data-mode="versus">👥 对战</button>
-            </div>
-            <div class="diff-group" id="diffGroup">
-                <button class="diff-btn" data-diff="easy">✨ 简单</button>
-                <button class="diff-btn" data-diff="hard">🔥 困难</button>
-            </div>
-            <button class="quiz-launch" id="quizBtn">🏆 答题模式</button>
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-calculator"></i> 扑克牌凑数 · 数据看板</h1>
+        <div class="sub" id="gameSubTitle">🃏 简单模式 · 学生成绩排名 | 仅显示最佳成绩</div>
+        <div class="refresh-bar">
+            <i class="fas fa-sync-alt"></i>
+            <span id="autoRefreshTip">自动刷新 15秒</span>
+            <button class="refresh-btn" id="manualRefreshBtn"><i class="fas fa-arrows-rotate"></i> 刷新</button>
         </div>
     </div>
 
-    <!-- 单人模式 -->
-    <div id="singleZone" class="single-area">
-        <div class="target-panel"><span>🎯 目标</span><span class="target-number" id="targetNum">14</span><button class="practice-skip" id="skipPractice">🔄 换牌</button></div>
-        <div class="quiz-panel" id="quizPanel" style="display: none;"><span>⏱️ <span id="timerDisplay">0</span> s</span><span>✅ <span id="progressCount">0</span>/5</span><button id="quizSkipBtn">⏩ 跳过</button></div>
-        <div class="cards-grid" id="cardsGrid"></div>
-        <div class="operator-row" id="opsRow"></div>
-        <div class="slots-area" id="slotsArea"></div>
-        <button class="check-btn" id="submitSingle">✔ 验证算式 ✔</button>
-        <div id="singleMsg" class="message-toast"></div>
+    <!-- 选项卡：简单/困难模式 -->
+    <div class="tabs">
+        <button class="tab-btn active" data-game="easy">✨ 简单模式</button>
+        <button class="tab-btn" data-game="hard">🔥 困难模式</button>
     </div>
 
-    <!-- 双人对战区（儿童面板旋转180°） -->
-    <div id="versusZone" class="versus-area">
-        <div class="round-bar" id="vsRoundInfo">第 1 / 5 回合 · 等待开始</div>
-        <div class="versus-players" id="vsPlayers"></div>
-        <button class="start-versus-btn" id="startVersusBtn">▶ 开始对战</button>
+    <!-- 班级统计卡片区域 -->
+    <div class="class-stats">
+        <div class="stats-scroll" id="classStatsScroll"></div>
     </div>
 
-    <!-- 排行榜 (单人模式) -->
-    <div id="rankArea" class="rank-wrapper">
-        <h4 id="rankTitle" style="text-align:center;">🏅 简单模式排行榜</h4>
-        <div class="rank-grid" id="rankLeftCol"></div>
-        <div class="rank-grid" id="rankRightCol" style="margin-top:8px;"></div>
-        <div style="background:#fff0dd; border-radius:40px; padding:8px; margin-top:8px;" id="liveRankCard">
-            <div class="live-rank-title" style="font-weight:700;">📊 玩家实时排名</div>
-            <div class="live-rank-content" id="liveRankContent">未登录或暂无成绩</div>
+    <!-- 列显示控制 / 仅最佳成绩 -->
+    <div class="column-control">
+        <div class="control-item best-toggle active" id="bestOnlyBtn">
+            <i class="fas fa-star"></i> 仅最佳成绩
         </div>
+        <div class="control-item" id="toggleRankBtn"><i class="fas fa-eye"></i> 排名</div>
+        <div class="control-item" id="toggleClassBtn"><i class="fas fa-eye"></i> 班级</div>
+        <div class="control-item" id="toggleNameBtn"><i class="fas fa-eye"></i> 姓名</div>
+        <div class="control-item" id="toggleCorrectBtn"><i class="fas fa-eye"></i> 正确/总数</div>
+        <div class="control-item" id="toggleTimeBtn"><i class="fas fa-eye"></i> 用时(秒)</div>
+        <div class="control-item" id="toggleDateBtn"><i class="fas fa-eye"></i> 时间</div>
     </div>
-    <footer>减法结果非负 | 对战模式支持简单/困难 | 孩子将手机倒置观看 | 点击「开始对战」后计时开始</footer>
-</div>
 
-<div id="infoModal" class="modal">
-    <div class="modal-card">
-        <h3>✏️ 选手信息</h3>
-        <select id="classSelect" style="margin:10px 0; padding:8px; border-radius:30px;"><option>1班</option><option>2班</option><option>3班</option><option>4班</option><option>5班</option><option>6班</option></select>
-        <input type="text" id="studentNameInput" placeholder="姓名" style="width:100%; padding:8px; border-radius:30px; border:1px solid #ccc;">
-        <div style="display:flex; gap:12px; margin-top:16px;"><button id="modalConfirm" style="flex:1; background:#699e7c; border:none; border-radius:40px; padding:8px;">开始</button><button id="modalCancel" style="flex:1; background:#ddd; border:none; border-radius:40px;">取消</button></div>
+    <!-- 数据表格 -->
+    <div class="data-table" id="dataTable">
+        <div class="table-header">
+            <div class="col-rank sortable-header" data-sort="rank">排名 <i class="fas fa-sort"></i></div>
+            <div class="col-class sortable-header" data-sort="class">班级 <i class="fas fa-sort"></i></div>
+            <div class="col-name sortable-header" data-sort="name">姓名 <i class="fas fa-sort"></i></div>
+            <div class="col-correct sortable-header" data-sort="correct">正确/总数 <i class="fas fa-sort"></i></div>
+            <div class="col-time sortable-header" data-sort="time">用时(秒) <i class="fas fa-sort"></i></div>
+            <div class="col-date sortable-header" data-sort="date">提交时间 <i class="fas fa-sort"></i></div>
+        </div>
+        <div id="tableBody"></div>
+    </div>
+
+    <div class="footer-note">
+        <i class="far fa-clock"></i> 排名基于每个学生的最好成绩（正确数优先，相同时用时更短）<br>
+        “仅最佳成绩”模式：每个学生只显示最优的一条记录，便于公平排名
     </div>
 </div>
 
 <script>
-    // ---------- API 配置 ----------
-    const API_EASY = "https://quickform.cn/api/qo3ux2czpi";
-    const API_HARD = "https://quickform.cn/api/q12gcimniu";
-    
-    let currentDifficulty = "easy";
-    let isQuizMode = false, quizCorrect = 0, quizDone = 0, quizStartTime = 0, quizTimer = null;
-    let currentStudent = { name: "", class: "" };
-    
-    // 单人牌局
-    let singleCards = [], singleCardData = [], singleSlots = [], singleOps = [];
-    let targetValue = 14;
-
-    // 双人对战全局
-    let versusActive = false;
-    let gameStarted = false;
-    let currentRound = 1;
-    let sharedTarget = 0, sharedCards = [];
-    let players = {
-        top: { name: "👶 孩子", score: 0, totalMs: 0, roundSubmitted: false, curSlots: [], curOps: [], cardsUsed: [], gameCards: [], startRoundTime: 0 },
-        bottom: { name: "👨‍👩 家长", score: 0, totalMs: 0, roundSubmitted: false, curSlots: [], curOps: [], cardsUsed: [], gameCards: [], startRoundTime: 0 }
+    // ================= 游戏 API 配置 =================
+    const API_CONFIG = {
+        easy: {
+            name: '简单模式',
+            url: 'https://quickform.cn/api/qo3ux2czpi/all',
+            sub: '🃏 简单模式 · 学生成绩排名 | 仅显示最佳成绩'
+        },
+        hard: {
+            name: '困难模式',
+            url: 'https://quickform.cn/api/q12gcimniu/all',
+            sub: '🔥 困难模式 · 学生成绩排名 | 仅显示最佳成绩'
+        }
     };
-    let versusRefreshTimer = null;
-
-    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩) ----------
-    function getApiBase() {
-        return currentDifficulty === "easy" ? API_EASY : API_HARD;
-    }
-
-    async function fetchLeaderboardData() {
-        const api = getApiBase() + "/all";
+    
+    let currentGame = 'easy';
+    let autoRefreshInterval = null;
+    let allSubmissions = [];      // 原始所有提交记录（标准化后）
+    let workingData = [];          // 当前使用的数据（原始数据副本）
+    let filteredSubmissions = [];   // 经过班级过滤和排序后的数据
+    
+    let onlyBest = true;           // 默认仅显示最佳成绩
+    let studentRankMap = new Map();   // key -> 排名
+    
+    let visibleColumns = {
+        rank: true, class: true, name: true, correct: true, time: true, date: true
+    };
+    let sortState = { field: 'date', order: 'desc' };
+    let currentClassFilter = 'all';
+    
+    const classStatsScroll = document.getElementById('classStatsScroll');
+    const tableBody = document.getElementById('tableBody');
+    const dataTable = document.getElementById('dataTable');
+    const bestOnlyBtn = document.getElementById('bestOnlyBtn');
+    const gameSubTitle = document.getElementById('gameSubTitle');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    
+    // ========== 辅助函数 ==========
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '—';
         try {
-            const res = await fetch(api, { cache: "no-cache" });
-            if (!res.ok) return [];
-            const json = await res.json();
-            const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            // 去重：以 班级+姓名 为key，保留正确数最多、时间最短的记录
-            const bestMap = new Map();
-            for (let item of submissions) {
-                let correct = item.correctCount ?? item.correct ?? 0;
-                let seconds = item.timeSeconds ?? item.time ?? 0;
-                let className = item.class ?? item.className ?? "";
-                let studentName = item.name ?? item.studentName ?? "";
-                if (!className || !studentName) continue;
-                const key = `${className}|${studentName}`;
-                const existing = bestMap.get(key);
-                if (!existing) {
-                    bestMap.set(key, { correct, seconds, className, studentName });
-                } else {
-                    if (correct > existing.correct) {
-                        bestMap.set(key, { correct, seconds, className, studentName });
-                    } else if (correct === existing.correct && seconds < existing.seconds) {
-                        bestMap.set(key, { correct, seconds, className, studentName });
-                    }
-                }
-            }
-            const records = Array.from(bestMap.values());
-            records.sort((a,b) => {
-                if (a.correct !== b.correct) return b.correct - a.correct;
-                return a.seconds - b.seconds;
-            });
-            return records.slice(0, 10);
-        } catch(e) {
-            console.warn("排行榜加载失败", e);
-            return [];
-        }
-    }
-
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-    async function renderLeaderboard() {
-        const records = await fetchLeaderboardData();
-        const leftItems = records.slice(0, 5);
-        const rightItems = records.slice(5, 10);
-        const leftCol = document.getElementById("rankLeftCol");
-        const rightCol = document.getElementById("rankRightCol");
-        
-        if (leftItems.length === 0) {
-            leftCol.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
-        } else {
-            leftCol.innerHTML = leftItems.map((item, idx) => {
-                let medal = "";
-                let medalClass = "";
-                if (idx === 0) { medal = "🥇"; medalClass = "gold"; }
-                else if (idx === 1) { medal = "🥈"; medalClass = "silver"; }
-                else if (idx === 2) { medal = "🥉"; medalClass = "bronze"; }
-                else { medal = `${idx+1}`; medalClass = ""; }
-                return `<div class="rank-item">
-                            <div class="rank-left">
-                                <div class="rank-num ${medalClass}">${medal}</div>
-                                <div class="rank-name">${escapeHtml(item.studentName)}</div>
-                                <div class="rank-class">${escapeHtml(item.className)}</div>
-                            </div>
-                            <div style="display:flex; gap:6px;">
-                                <span class="rank-correct">✅ ${item.correct}/5</span>
-                                <span class="rank-time">⏱️ ${item.seconds}s</span>
-                            </div>
-                        </div>`;
-            }).join('');
-        }
-        
-        if (rightItems.length === 0) {
-            rightCol.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
-        } else {
-            rightCol.innerHTML = rightItems.map((item, idx) => {
-                let rankNum = idx + 6;
-                return `<div class="rank-item">
-                            <div class="rank-left">
-                                <div class="rank-num">${rankNum}</div>
-                                <div class="rank-name">${escapeHtml(item.studentName)}</div>
-                                <div class="rank-class">${escapeHtml(item.className)}</div>
-                            </div>
-                            <div style="display:flex; gap:6px;">
-                                <span class="rank-correct">✅ ${item.correct}/5</span>
-                                <span class="rank-time">⏱️ ${item.seconds}s</span>
-                            </div>
-                        </div>`;
-            }).join('');
-        }
-        
-        await updateUserLiveRank(records);
+            let d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        } catch(e) { return dateStr; }
     }
     
-    async function updateUserLiveRank(bestRecords) {
-        if (!currentStudent.name || !currentStudent.class) {
-            document.getElementById("liveRankContent").innerHTML = "未登录，请点击「答题模式」输入信息";
-            return;
-        }
-        let records = bestRecords;
-        if (!records || records.length === 0) records = await fetchLeaderboardData();
-        const userKey = `${currentStudent.class}|${currentStudent.name}`;
-        let userIndex = -1;
-        let userRecord = null;
-        for (let i = 0; i < records.length; i++) {
-            const r = records[i];
-            if (r.className === currentStudent.class && r.studentName === currentStudent.name) {
-                userIndex = i;
-                userRecord = r;
-                break;
+    function isValidName(name) {
+        if (!name || typeof name !== 'string') return false;
+        const trimmed = name.trim();
+        if (trimmed.length < 2) return false;
+        return /[\u4e00-\u9fa5a-zA-Z]/.test(trimmed);
+    }
+    
+    // 从原始提交记录中标准化数据（兼容不同字段名）
+    function normalizeRecord(raw) {
+        // 兼容多种可能的字段命名
+        const className = raw.class || raw.className || '未知班级';
+        const studentName = raw.name || raw.studentName || '匿名';
+        const correctAnswers = raw.correctCount ?? raw.correct ?? raw.correctAnswers ?? 0;
+        const totalTimeSeconds = raw.timeSeconds ?? raw.time ?? raw.totalTimeSeconds ?? 0;
+        const totalQuestions = raw.totalQuestions ?? 5;
+        const submitted_at = raw.timestamp || raw.submitted_at || new Date().toISOString();
+        return {
+            className: String(className),
+            studentName: String(studentName),
+            correctAnswers: Number(correctAnswers),
+            totalTimeSeconds: Number(totalTimeSeconds),
+            totalQuestions: Number(totalQuestions),
+            submitted_at: submitted_at
+        };
+    }
+    
+    // 聚合每个学生的最佳成绩 (正确数优先，相同时用时短)
+    function computeStudentBestMap(data) {
+        const bestMap = new Map();
+        data.forEach(item => {
+            const className = item.className || '未知班级';
+            const studentName = item.studentName || '匿名';
+            if (!isValidName(studentName)) return;
+            const key = `${className}|${studentName}`;
+            const correct = item.correctAnswers ?? 0;
+            const time = item.totalTimeSeconds ?? 9999;
+            const total = item.totalQuestions ?? 5;
+            if (!bestMap.has(key)) {
+                bestMap.set(key, { className, studentName, correct, time, total, submitted_at: item.submitted_at });
+            } else {
+                const existing = bestMap.get(key);
+                if (correct > existing.correct || (correct === existing.correct && time < existing.time)) {
+                    bestMap.set(key, { className, studentName, correct, time, total, submitted_at: item.submitted_at });
+                }
             }
-        }
-        if (userIndex === -1 || !userRecord) {
-            document.getElementById("liveRankContent").innerHTML = `👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>🏆 暂无成绩，完成5题后上榜`;
-            return;
-        }
-        const rank = userIndex + 1;
-        const total = records.length;
-        let rankText = rank === 1 ? "🥇 第1名" : (rank === 2 ? "🥈 第2名" : (rank === 3 ? "🥉 第3名" : `第 ${rank} 名`));
-        document.getElementById("liveRankContent").innerHTML = `
-            👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>
-            🎯 最佳成绩：✅ ${userRecord.correct}/5 题，⏱️ ${userRecord.seconds} 秒<br>
-            🏆 当前排名：${rankText} (共 ${total} 人)
-        `;
+        });
+        return bestMap;
     }
-
-    async function refreshLeaderboard() {
-        if (versusActive) return;
-        await renderLeaderboard();
+    
+    function bestMapToArray(bestMap) {
+        return Array.from(bestMap.values()).map(item => ({
+            className: item.className,
+            studentName: item.studentName,
+            correctAnswers: item.correct,
+            totalTimeSeconds: item.time,
+            totalQuestions: item.total,
+            submitted_at: item.submitted_at
+        }));
     }
-
-    async function submitScoreToAPI(correct, total, seconds, difficulty, className, studentName) {
-        const api = difficulty === "easy" ? API_EASY : API_HARD;
-        try {
-            await fetch(api, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    event: "quiz_completed",
-                    correctCount: correct,
-                    totalQuestions: total,
-                    timeSeconds: seconds,
-                    difficulty: difficulty,
-                    class: className,
-                    name: studentName,
-                    timestamp: new Date().toISOString(),
-                    game: "poker_math"
-                })
+    
+    // 计算排名列表（基于最佳成绩）
+    function computeRankingList(bestMap) {
+        const students = Array.from(bestMap.entries()).map(([key, info]) => ({ key, ...info }));
+        students.sort((a,b) => {
+            if (a.correct !== b.correct) return b.correct - a.correct;
+            return a.time - b.time;
+        });
+        const rankList = [];
+        for (let i = 0; i < students.length; i++) {
+            rankList.push({ key: students[i].key, rank: i+1 });
+        }
+        return rankList;
+    }
+    
+    function updateRankMap(data) {
+        const bestMap = computeStudentBestMap(data);
+        const rankList = computeRankingList(bestMap);
+        studentRankMap.clear();
+        rankList.forEach(r => studentRankMap.set(r.key, r.rank));
+    }
+    
+    function getRankForRecord(record) {
+        const className = record.className || '未知班级';
+        const studentName = record.studentName || '匿名';
+        const key = `${className}|${studentName}`;
+        return studentRankMap.get(key) || '—';
+    }
+    
+    // 班级统计：基于原始所有提交（非最佳成绩）计算提交次数、平均正确率、平均用时
+    function computeClassStats(data) {
+        const classMap = new Map(); // className -> { totalCorrect, totalQ, totalTime, count }
+        data.forEach(sub => {
+            const className = sub.className || '未知班级';
+            if (!classMap.has(className)) {
+                classMap.set(className, { totalCorrect: 0, totalQ: 0, totalTime: 0, count: 0 });
+            }
+            const stat = classMap.get(className);
+            stat.totalCorrect += (sub.correctAnswers || 0);
+            stat.totalQ += (sub.totalQuestions || 5);
+            stat.totalTime += (sub.totalTimeSeconds || 0);
+            stat.count++;
+        });
+        const stats = [];
+        const countMap = new Map();
+        data.forEach(sub => {
+            const cn = sub.className || '未知班级';
+            countMap.set(cn, (countMap.get(cn) || 0) + 1);
+        });
+        for (let [className, stat] of classMap.entries()) {
+            const accuracy = stat.totalQ > 0 ? (stat.totalCorrect / stat.totalQ) * 100 : 0;
+            const avgTime = stat.count > 0 ? (stat.totalTime / stat.count).toFixed(1) : '—';
+            stats.push({ 
+                className, 
+                submissionCount: countMap.get(className) || 0, 
+                accuracy,
+                avgTime: avgTime === '—' ? '—' : avgTime + 's'
             });
-            await refreshLeaderboard();
-        } catch(e) { console.warn(e); }
-    }
-
-    // ---------- 以下保持原有的单人/双人游戏逻辑 ----------
-    function showMessage(domId, msg, isErr) { let el = document.getElementById(domId); if(el){ el.innerText = msg; el.style.display = "block"; setTimeout(()=>el.style.display="none", 1800); } }
-
-    function hasValidSolution(diff, target, cards) {
-        if(diff === "easy") {
-            for(let i=0;i<cards.length;i++) for(let j=i+1;j<cards.length;j++) {
-                let a=cards[i],b=cards[j];
-                if(a+b===target) return true;
-                if(a-b===target && a-b>=0) return true;
-                if(b-a===target && b-a>=0) return true;
-            } return false;
-        } else {
-            for(let i=0;i<4;i++) for(let j=0;j<4;j++) if(j!==i) for(let k=0;k<4;k++) if(k!==i && k!==j) {
-                let a=cards[i],b=cards[j],c=cards[k];
-                for(let op of [['+','+'],['+','-'],['-','+'],['-','-']]) {
-                    let s1 = op[0]==='+'? a+b : a-b; if(s1<0) continue;
-                    let s2 = op[1]==='+'? s1+c : s1-c; if(s2===target && s2>=0) return true;
-                }
-            } return false;
         }
+        stats.sort((a,b) => a.className.localeCompare(b.className));
+        return stats;
     }
-
-    function generateSharedGame(){
-        let diff = currentDifficulty;
-        for(let i=0;i<40;i++){
-            let t = Math.floor(Math.random()*20)+3;
-            let cards = Array.from({length:4},()=>Math.floor(Math.random()*13)+1);
-            if(hasValidSolution(diff, t, cards)){
-                sharedTarget = t;
-                sharedCards = [...cards];
-                return;
-            }
-        }
-        sharedTarget = diff==="easy"?12:15;
-        sharedCards = diff==="easy"?[5,6,3,4]:[7,5,8,3];
-    }
-
-    function generateSingleGame(){
-        let diff = currentDifficulty;
-        for(let t=0;t<40;t++){
-            let newTarget = Math.floor(Math.random()*20)+3;
-            let newCards = Array.from({length:4},()=>Math.floor(Math.random()*13)+1);
-            if(hasValidSolution(diff, newTarget, newCards)){
-                targetValue = newTarget; singleCards = [...newCards];
-                document.getElementById("targetNum").innerText = targetValue;
-                singleCardData = singleCards.map((v,i)=>({id:`c_${i}`, val:v, used:false}));
-                return;
-            }
-        }
-        targetValue=12; singleCards=[5,4,7,2]; document.getElementById("targetNum").innerText=targetValue;
-        singleCardData = singleCards.map((v,i)=>({id:`c_${i}`, val:v, used:false}));
-    }
-
-    function renderSingleCards(){
-        let container = document.getElementById("cardsGrid");
-        container.innerHTML = "";
-        singleCardData.forEach(card=>{
-            let div = document.createElement("div");
-            div.className = `card ${card.used ? "disabled" : ""}`;
-            let suit = (card.val%4===0?'♥':card.val%3===0?'♣':card.val%2===0?'♦':'♠');
-            div.innerHTML = `<div>${card.val}</div><div style="font-size:1rem;">${suit}</div>`;
-            if(!card.used) div.onclick = ()=> tryPlaceCard(card.id);
-            else div.onclick = ()=> removeCardByCardId(card.id);
-            container.appendChild(div);
+    
+    function renderClassStats(data) {
+        const stats = computeClassStats(data);
+        let html = '';
+        const totalAll = data.length;
+        let totalTimeAll = 0;
+        let countAll = 0;
+        data.forEach(sub => {
+            totalTimeAll += (sub.totalTimeSeconds || 0);
+            countAll++;
+        });
+        const avgTimeAll = countAll > 0 ? (totalTimeAll / countAll).toFixed(1) + 's' : '—';
+        const allActive = currentClassFilter === 'all' ? 'active' : '';
+        html += `<div class="class-card ${allActive}" data-class="all">
+                    <div class="class-name">全部班级</div>
+                    <div class="class-count">${totalAll}</div>
+                    <div class="class-rate">正确率 —</div>
+                    <div class="class-avgtime">⏱️ 平均 ${avgTimeAll}</div>
+                </div>`;
+        stats.forEach(stat => {
+            const active = (currentClassFilter === stat.className) ? 'active' : '';
+            html += `<div class="class-card ${active}" data-class="${stat.className}">
+                        <div class="class-name">${stat.className}</div>
+                        <div class="class-count">${stat.submissionCount}</div>
+                        <div class="class-rate">正确率 ${stat.accuracy.toFixed(0)}%</div>
+                        <div class="class-avgtime">⏱️ 平均 ${stat.avgTime}</div>
+                    </div>`;
+        });
+        classStatsScroll.innerHTML = html;
+        document.querySelectorAll('.class-card').forEach(card => {
+            card.addEventListener('click', () => {
+                currentClassFilter = card.getAttribute('data-class');
+                applyFiltersAndRender();
+            });
         });
     }
-    function tryPlaceCard(cardId){
-        let card = singleCardData.find(c=>c.id===cardId);
-        if(!card || card.used) return;
-        let idx = singleSlots.findIndex(s=>s===null);
-        if(idx===-1){ showMessage("singleMsg","格已满",true); return; }
-        singleSlots[idx] = { cardId: card.id, val: card.val };
-        card.used = true;
-        renderSingleSlots(); renderSingleCards();
+    
+    // 获取当前显示的数据（根据 onlyBest 决定）
+    function getDisplayData() {
+        if (!onlyBest) return [...workingData];
+        const bestMap = computeStudentBestMap(workingData);
+        return bestMapToArray(bestMap);
     }
-    function removeCardByCardId(cardId){
-        let idx = singleSlots.findIndex(s=>s?.cardId===cardId);
-        if(idx!==-1){
-            let card = singleCardData.find(c=>c.id===cardId);
-            if(card) card.used = false;
-            singleSlots[idx] = null;
-            renderSingleSlots(); renderSingleCards();
+    
+    // 过滤和排序
+    function filterAndSort(dataToDisplay) {
+        let filtered = [...dataToDisplay];
+        if (currentClassFilter !== 'all') {
+            filtered = filtered.filter(s => s.className === currentClassFilter);
         }
-    }
-    function removeSlotByIndex(idx){
-        if(singleSlots[idx]){
-            let card = singleCardData.find(c=>c.id===singleSlots[idx].cardId);
-            if(card) card.used=false;
-            singleSlots[idx]=null;
-            renderSingleSlots(); renderSingleCards();
-        }
-    }
-    function renderSingleSlots(){
-        let need = currentDifficulty==="easy"?2:3;
-        let container = document.getElementById("slotsArea");
-        let html = `<div class="slots-row">`;
-        for(let i=0;i<need;i++){
-            let val = singleSlots[i]?.val || "?";
-            let filled = singleSlots[i]?"filled":"";
-            html += `<div class="slot ${filled}" data-idx="${i}">${val}</div>`;
-            if(i<need-1){
-                let opIdx = (currentDifficulty==="easy"?0:i);
-                let opChar = singleOps[opIdx]==='+'?'➕':(singleOps[opIdx]==='-'?'➖':'?');
-                html += `<div class="op-place">${opChar}</div>`;
+        const { field, order } = sortState;
+        filtered.sort((a, b) => {
+            let valA, valB;
+            switch(field) {
+                case 'rank':
+                    const rankA = getRankForRecord(a);
+                    const rankB = getRankForRecord(b);
+                    valA = rankA === '—' ? 9999 : rankA;
+                    valB = rankB === '—' ? 9999 : rankB;
+                    break;
+                case 'class': valA = a.className || ''; valB = b.className || ''; break;
+                case 'name': valA = a.studentName || ''; valB = b.studentName || ''; break;
+                case 'correct': 
+                    valA = (a.correctAnswers || 0) / (a.totalQuestions || 5);
+                    valB = (b.correctAnswers || 0) / (b.totalQuestions || 5);
+                    break;
+                case 'time': valA = a.totalTimeSeconds || 0; valB = b.totalTimeSeconds || 0; break;
+                case 'date': valA = new Date(a.submitted_at || 0); valB = new Date(b.submitted_at || 0); break;
+                default: return 0;
             }
-        }
-        html += `</div>`;
-        container.innerHTML = html;
-        document.querySelectorAll(".slot").forEach(s=>{ let idx = parseInt(s.dataset.idx); s.onclick = ()=> { if(singleSlots[idx]) removeSlotByIndex(idx); }; });
+            if (valA < valB) return order === 'asc' ? -1 : 1;
+            if (valA > valB) return order === 'asc' ? 1 : -1;
+            return 0;
+        });
+        return filtered;
     }
-    function renderOps(){
-        let container = document.getElementById("opsRow");
-        if(currentDifficulty==="easy"){
-            container.innerHTML = `<div class="op-circle ${singleOps[0]==='+'?'active':''}" data-op="+" data-idx="0">➕</div><div class="op-circle ${singleOps[0]==='-'?'active':''}" data-op="-" data-idx="0">➖</div>`;
-        } else {
-            container.innerHTML = `<div class="op-circle ${singleOps[0]==='+'?'active':''}" data-op="+" data-idx="0">➕</div><div class="op-circle ${singleOps[0]==='-'?'active':''}" data-op="-" data-idx="0">➖</div>
-                                    <div class="op-circle ${singleOps[1]==='+'?'active':''}" data-op="+" data-idx="1">➕</div><div class="op-circle ${singleOps[1]==='-'?'active':''}" data-op="-" data-idx="1">➖</div>`;
+    
+    function renderTable(data) {
+        tableBody.innerHTML = '';
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = '<div class="empty-row">暂无数据，快去游戏中挑战吧 🃏</div>';
+            return;
         }
-        document.querySelectorAll(".op-circle").forEach(btn=>{
-            btn.onclick = ()=>{
-                let idx = parseInt(btn.dataset.idx);
-                let op = btn.dataset.op;
-                singleOps[idx] = op;
-                renderOps(); renderSingleSlots();
-            };
+        let rowsHtml = '';
+        data.forEach(item => {
+            const correct = item.correctAnswers ?? 0;
+            const total = item.totalQuestions ?? 5;
+            const rank = getRankForRecord(item);
+            rowsHtml += `
+                <div class="table-row">
+                    <div class="cell col-rank ${!visibleColumns.rank ? 'hidden-col' : ''}"><span class="rank-badge">${rank}</span></div>
+                    <div class="cell col-class ${!visibleColumns.class ? 'hidden-col' : ''}">${escapeHtml(item.className || '—')}</div>
+                    <div class="cell col-name ${!visibleColumns.name ? 'hidden-col' : ''}">${escapeHtml(item.studentName || '匿名')}</div>
+                    <div class="cell col-correct ${!visibleColumns.correct ? 'hidden-col' : ''} cell-correct">${correct}/${total}</div>
+                    <div class="cell col-time ${!visibleColumns.time ? 'hidden-col' : ''}">${item.totalTimeSeconds ?? '—'}</div>
+                    <div class="cell col-date ${!visibleColumns.date ? 'hidden-col' : ''}">${formatDateTime(item.submitted_at)}</div>
+                </div>
+            `;
+        });
+        tableBody.innerHTML = rowsHtml;
+        updateTableColumnsVisibility();
+        updateSortIcons();
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
         });
     }
-    function computeSingle(){
-        let need = currentDifficulty==="easy"?2:3;
-        let vals = singleSlots.slice(0,need).map(s=>s?.val);
-        if(vals.includes(undefined)) return null;
-        if(currentDifficulty==="easy"){
-            if(singleOps[0]===null) return null;
-            let r = singleOps[0]==='+'? vals[0]+vals[1] : vals[0]-vals[1];
-            return r>=0?r:null;
-        } else {
-            if(singleOps.includes(null)) return null;
-            let step=vals[0];
-            for(let i=0;i<2;i++) step = singleOps[i]==='+'? step+vals[i+1] : step-vals[i+1];
-            return step>=0?step:null;
-        }
+    
+    function updateTableColumnsVisibility() {
+        if (!dataTable) return;
+        if (!visibleColumns.rank) dataTable.classList.add('hide-rank');
+        else dataTable.classList.remove('hide-rank');
+        if (!visibleColumns.class) dataTable.classList.add('hide-class');
+        else dataTable.classList.remove('hide-class');
+        if (!visibleColumns.name) dataTable.classList.add('hide-name');
+        else dataTable.classList.remove('hide-name');
+        if (!visibleColumns.correct) dataTable.classList.add('hide-correct');
+        else dataTable.classList.remove('hide-correct');
+        if (!visibleColumns.time) dataTable.classList.add('hide-time');
+        else dataTable.classList.remove('hide-time');
+        if (!visibleColumns.date) dataTable.classList.add('hide-date');
+        else dataTable.classList.remove('hide-date');
     }
-    function onSingleVerify(){
-        let need = currentDifficulty==="easy"?2:3;
-        if(singleSlots.filter(s=>s!==null).length !== need){ showMessage("singleMsg","放满算式格",true); return; }
-        let res = computeSingle();
-        if(res===null){ showMessage("singleMsg","选运算符",true); return; }
-        let correct = (res === targetValue);
-        if(!isQuizMode){
-            showMessage("singleMsg", correct?"✅正确":"❌错误", !correct);
-            if(correct) generateSingleGame();
-            singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-            singleCardData.forEach(c=>c.used=false);
-            renderSingleCards(); renderSingleSlots(); renderOps();
-        } else {
-            if(quizDone>=5) return;
-            if(correct) quizCorrect++;
-            quizDone++;
-            document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`;
-            showMessage("singleMsg", correct?"🎉答对！下一题":"❌答错，下一题", !correct);
-            if(quizDone===5){
-                let sec = Math.floor((Date.now()-quizStartTime)/1000);
-                finishQuiz(sec);
+    
+    function updateSortIcons() {
+        const headers = document.querySelectorAll('.sortable-header');
+        headers.forEach(header => {
+            const field = header.getAttribute('data-sort');
+            const icon = header.querySelector('i');
+            if (field === sortState.field) {
+                icon.className = sortState.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
             } else {
-                generateSingleGame();
-                singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-                singleCardData.forEach(c=>c.used=false);
-                renderSingleCards(); renderSingleSlots(); renderOps();
+                icon.className = 'fas fa-sort';
             }
-        }
-    }
-    function finishQuiz(sec){
-        if(quizTimer) clearInterval(quizTimer);
-        isQuizMode=false;
-        document.getElementById("quizPanel").style.display="none";
-        document.getElementById("quizBtn").disabled=false;
-        document.getElementById("quizBtn").innerText="🏆 答题模式";
-        showMessage("singleMsg",`完成！${quizCorrect}/5题，用时${sec}秒`,false);
-        if(currentStudent.name && currentStudent.class) {
-            submitScoreToAPI(quizCorrect, 5, sec, currentDifficulty, currentStudent.class, currentStudent.name);
-        }
-        refreshLeaderboard();
-    }
-    function startQuiz(){
-        if(isQuizMode) return;
-        if(!currentStudent.name){ document.getElementById("infoModal").classList.add("active"); return; }
-        isQuizMode=true; quizCorrect=0; quizDone=0; quizStartTime=Date.now();
-        document.getElementById("quizPanel").style.display="flex";
-        document.getElementById("progressCount").innerText="0/0";
-        if(quizTimer) clearInterval(quizTimer);
-        quizTimer = setInterval(()=>{ if(isQuizMode) document.getElementById("timerDisplay").innerText = Math.floor((Date.now()-quizStartTime)/1000); },500);
-        document.getElementById("quizBtn").disabled=true;
-        document.getElementById("quizBtn").innerText="⏳ 答题中";
-        generateSingleGame();
-        let need = currentDifficulty==="easy"?2:3;
-        singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-        singleCardData.forEach(c=>c.used=false);
-        renderSingleCards(); renderSingleSlots(); renderOps();
-    }
-
-    // 双人对战函数 (保持不变，略)
-    function buildVersusUI(){
-        let container = document.getElementById("vsPlayers");
-        container.innerHTML = `
-            <div class="player-panel top" id="topPanel">
-                <div class="player-header"><span class="player-name">👶 孩子</span><span class="player-target" id="topTarget">🎯 ?</span><div class="player-stats"><span id="topScore">0分</span><span id="topTime">0s</span></div></div>
-                <div class="versus-cards" id="topCards"></div><div class="versus-ops" id="topOps"></div><div class="versus-slots" id="topSlots"></div>
-                <button class="versus-submit" id="topSubmit">✅ 提交</button><div class="wait-tip" id="topWait"></div>
-            </div>
-            <div class="player-panel bottom" id="bottomPanel">
-                <div class="player-header"><span class="player-name">👨‍👩 家长</span><span class="player-target" id="bottomTarget">🎯 ?</span><div class="player-stats"><span id="bottomScore">0分</span><span id="bottomTime">0s</span></div></div>
-                <div class="versus-cards" id="bottomCards"></div><div class="versus-ops" id="bottomOps"></div><div class="versus-slots" id="bottomSlots"></div>
-                <button class="versus-submit" id="bottomSubmit">✅ 提交</button><div class="wait-tip" id="bottomWait"></div>
-            </div>
-        `;
-    }
-    function initVersusPlayer(side){
-        let p = players[side];
-        let slotCount = currentDifficulty==="easy"?2:3;
-        let opCount = currentDifficulty==="easy"?1:2;
-        p.curSlots = Array(slotCount).fill(null);
-        p.curOps = Array(opCount).fill(null);
-        p.cardsUsed = [false,false,false,false];
-        p.gameCards = [...sharedCards];
-        p.roundSubmitted = false;
-        p.startRoundTime = 0;
-        if(p.totalMs === undefined) p.totalMs = 0;
-        renderVersusPlayer(side);
-    }
-    function renderVersusPlayer(side){
-        let p = players[side];
-        let isTop = (side === "top");
-        let slotCount = currentDifficulty==="easy"?2:3;
-        let opCount = currentDifficulty==="easy"?1:2;
-        document.getElementById(isTop?"topTarget":"bottomTarget").innerText = `🎯 ${sharedTarget}`;
-        let cardsDiv = document.getElementById(isTop?"topCards":"bottomCards");
-        cardsDiv.innerHTML = "";
-        p.gameCards.forEach((val,idx)=>{
-            let used = p.cardsUsed[idx];
-            let suit = (val%4===0?'♥':val%3===0?'♣':val%2===0?'♦':'♠');
-            let cardDiv = document.createElement("div");
-            cardDiv.className = `vcard ${used ? "disabled-vcard" : ""}`;
-            cardDiv.innerHTML = `<div>${val}</div><div style="font-size:0.9rem;">${suit}</div>`;
-            if(!used && !p.roundSubmitted){
-                cardDiv.onclick = ()=>{
-                    let empty = p.curSlots.findIndex(v=>v===null);
-                    if(empty!==-1){
-                        p.curSlots[empty] = val;
-                        p.cardsUsed[idx] = true;
-                        renderVersusPlayer(side);
-                    } else { showMessage("singleMsg","槽位已满",true); }
-                };
-            }
-            cardsDiv.appendChild(cardDiv);
         });
-        let opsDiv = document.getElementById(isTop?"topOps":"bottomOps");
-        opsDiv.innerHTML = "";
-        for(let i=0;i<opCount;i++){
-            let plusBtn = document.createElement("div"); plusBtn.className = `vop ${p.curOps[i]==='+'?'active':''}`; plusBtn.innerText = "➕";
-            let minusBtn = document.createElement("div"); minusBtn.className = `vop ${p.curOps[i]==='-'?'active':''}`; minusBtn.innerText = "➖";
-            if(!p.roundSubmitted){
-                plusBtn.onclick = ()=>{ p.curOps[i]='+'; renderVersusPlayer(side); };
-                minusBtn.onclick = ()=>{ p.curOps[i]='-'; renderVersusPlayer(side); };
-            }
-            opsDiv.appendChild(plusBtn); opsDiv.appendChild(minusBtn);
-            if(i<opCount-1) opsDiv.appendChild(document.createElement("span"));
-        }
-        let slotsDiv = document.getElementById(isTop?"topSlots":"bottomSlots");
-        slotsDiv.innerHTML = "";
-        for(let i=0;i<slotCount;i++){
-            let val = p.curSlots[i];
-            let slotDiv = document.createElement("div");
-            slotDiv.className = `vslot ${val!==null?"filled":""}`;
-            slotDiv.innerText = val!==null?val:"?";
-            if(!p.roundSubmitted && val!==null){
-                slotDiv.onclick = ()=>{
-                    let cardIdx = p.gameCards.findIndex((c,idx)=>c===val && p.cardsUsed[idx]===true);
-                    if(cardIdx!==-1) p.cardsUsed[cardIdx]=false;
-                    p.curSlots[i]=null;
-                    renderVersusPlayer(side);
-                };
-            }
-            slotsDiv.appendChild(slotDiv);
-            if(i<slotCount-1){
-                let opSym = p.curOps[currentDifficulty==="easy"?0:i];
-                let place = document.createElement("div"); place.className="vop-place"; place.innerText = opSym==='+'?'➕':opSym==='-'?'➖':'?';
-                slotsDiv.appendChild(place);
-            }
-        }
-        document.getElementById(isTop?"topScore":"bottomScore").innerText = `${p.score}分`;
-        if(!gameStarted) document.getElementById(isTop?"topWait":"bottomWait").innerText = "⏳ 等待开始";
-        else document.getElementById(isTop?"topWait":"bottomWait").innerText = p.roundSubmitted ? "⏳ 已提交，等待对方" : "";
-        let submitBtn = document.getElementById(isTop?"topSubmit":"bottomSubmit");
-        if(!gameStarted || p.roundSubmitted){ submitBtn.disabled=true; submitBtn.classList.add("disabled-submit");}
-        else { submitBtn.disabled=false; submitBtn.classList.remove("disabled-submit");}
     }
-    function refreshVersusTimers(){
-        if(!versusActive || !gameStarted) return;
-        let now = Date.now();
-        for(let side of ["top","bottom"]){
-            let p = players[side];
-            let displaySec = 0;
-            if(p.roundSubmitted) displaySec = Math.floor(p.totalMs / 1000);
-            else if(p.startRoundTime > 0) displaySec = Math.floor((p.totalMs + (now - p.startRoundTime)) / 1000);
-            let isTop = (side === "top");
-            document.getElementById(isTop?"topTime":"bottomTime").innerText = `${displaySec}s`;
+    
+    async function refreshDashboard() {
+        const apiUrl = API_CONFIG[currentGame].url;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const response = await fetch(apiUrl, { cache: 'no-cache', signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            // 兼容返回格式：{ submissions: [...] } 或直接数组
+            let rawList = data.submissions || (Array.isArray(data) ? data : []);
+            // 标准化每条记录
+            allSubmissions = rawList.map(item => normalizeRecord(item));
+            workingData = [...allSubmissions];
+            updateRankMap(workingData);
+            renderClassStats(workingData);
+            applyFiltersAndRender();
+        } catch (err) {
+            console.error('数据加载失败:', err);
+            tableBody.innerHTML = '<div class="empty-row">⚠️ 网络开小差，请稍后刷新</div>';
         }
     }
-    function computeVersusExpression(p){
-        let slotCount = currentDifficulty==="easy"?2:3;
-        let vals = p.curSlots.slice(0,slotCount);
-        if(vals.includes(null)) return null;
-        if(currentDifficulty==="easy"){
-            if(p.curOps[0]===null) return null;
-            let r = p.curOps[0]==='+'? vals[0]+vals[1] : vals[0]-vals[1];
-            return r>=0?r:null;
+    
+    function applyFiltersAndRender() {
+        updateRankMap(workingData);
+        const displayData = getDisplayData();
+        const sortedFiltered = filterAndSort(displayData);
+        filteredSubmissions = sortedFiltered;
+        renderTable(sortedFiltered);
+        renderClassStats(workingData);
+        if (onlyBest) bestOnlyBtn.classList.add('active');
+        else bestOnlyBtn.classList.remove('active');
+    }
+    
+    function handleSortClick(field) {
+        if (sortState.field === field) {
+            sortState.order = sortState.order === 'asc' ? 'desc' : 'asc';
         } else {
-            if(p.curOps.includes(null)) return null;
-            let step = vals[0];
-            for(let i=0;i<2;i++) step = p.curOps[i]==='+'? step+vals[i+1] : step-vals[i+1];
-            return step>=0?step:null;
+            sortState.field = field;
+            sortState.order = 'desc';
         }
+        applyFiltersAndRender();
     }
-    async function submitVersus(side){
-        let p = players[side];
-        if(!gameStarted || p.roundSubmitted) return;
-        let slotCount = currentDifficulty==="easy"?2:3;
-        if(p.curSlots.filter(v=>v!==null).length !== slotCount){ showMessage("singleMsg","请放满所有格子",true); return; }
-        let exprVal = computeVersusExpression(p);
-        if(exprVal===null){ showMessage("singleMsg","请完整选择运算符",true); return; }
-        let correct = (exprVal === sharedTarget);
-        let now = Date.now();
-        let elapsed = now - p.startRoundTime;
-        p.totalMs += elapsed;
-        if(correct) p.score++;
-        p.roundSubmitted = true;
-        renderVersusPlayer(side);
-        if(players.top.roundSubmitted && players.bottom.roundSubmitted){
-            if(currentRound === 5){
-                endVersusMatch();
-                return;
-            }
-            currentRound++;
-            document.getElementById("vsRoundInfo").innerHTML = `第 ${currentRound} / 5 回合 · 对战进行中`;
-            generateSharedGame();
-            for(let s of ["top","bottom"]){
-                players[s].roundSubmitted = false;
-                let slotCnt = currentDifficulty==="easy"?2:3;
-                let opCnt = currentDifficulty==="easy"?1:2;
-                players[s].curSlots = Array(slotCnt).fill(null);
-                players[s].curOps = Array(opCnt).fill(null);
-                players[s].cardsUsed = [false,false,false,false];
-                players[s].gameCards = [...sharedCards];
-                players[s].startRoundTime = Date.now();
-                renderVersusPlayer(s);
-            }
-        }
+    
+    function toggleBestOnly() {
+        onlyBest = !onlyBest;
+        applyFiltersAndRender();
     }
-    function endVersusMatch(){
-        if(versusRefreshTimer) clearInterval(versusRefreshTimer);
-        let top = players.top, bot = players.bottom;
-        let topScore = top.score, botScore = bot.score;
-        let topTimeSec = Math.floor(top.totalMs/1000), botTimeSec = Math.floor(bot.totalMs/1000);
-        let winnerMsg = "";
-        if(topScore > botScore) winnerMsg = "👶 孩子获胜！";
-        else if(botScore > topScore) winnerMsg = "👨‍👩 家长获胜！";
-        else {
-            if(topTimeSec < botTimeSec) winnerMsg = "👶 孩子时间领先，平局按时间判胜！";
-            else if(botTimeSec < topTimeSec) winnerMsg = "👨‍👩 家长时间领先，平局按时间判胜！";
-            else winnerMsg = "🤝 完全平局！";
-        }
-        let modal = document.createElement("div"); modal.className="result-overlay";
-        modal.innerHTML = `<div class="result-card"><h3>🏁 对战结束</h3><p>孩子: ${topScore}分 / ${topTimeSec}秒</p><p>家长: ${botScore}分 / ${botTimeSec}秒</p><h2>${winnerMsg}</h2><button id="closeResult" style="margin-top:12px; background:#699e7c; border:none; padding:8px 24px; border-radius:60px;">关闭</button></div>`;
-        document.body.appendChild(modal);
-        document.getElementById("closeResult").onclick = ()=>{ modal.remove(); exitVersusMode(); };
-        versusActive = false;
-        gameStarted = false;
+    
+    function startAutoRefresh() {
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+            refreshDashboard();
+        }, 15000);
     }
-    function exitVersusMode(){
-        if(versusRefreshTimer) clearInterval(versusRefreshTimer);
-        versusActive = false;
-        gameStarted = false;
-        document.getElementById("versusZone").classList.remove("show");
-        document.getElementById("singleZone").classList.remove("hide");
-        document.getElementById("rankArea").style.display = "block";
-        document.getElementById("quizBtn").style.display = "inline-block";
-        document.querySelector(".mode-btn[data-mode='single']").classList.add("active");
-        document.querySelector(".mode-btn[data-mode='versus']").classList.remove("active");
-        document.querySelectorAll(".diff-btn").forEach(btn=>btn.classList.remove("active"));
-        document.querySelector(`.diff-btn[data-diff="${currentDifficulty}"]`).classList.add("active");
-        generateSingleGame();
-        let need = currentDifficulty==="easy"?2:3;
-        singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-        renderSingleCards(); renderSingleSlots(); renderOps();
-        refreshLeaderboard();
-    }
-    function startVersus(){
-        versusActive = true;
-        gameStarted = false;
-        document.getElementById("singleZone").classList.add("hide");
-        document.getElementById("versusZone").classList.add("show");
-        document.getElementById("rankArea").style.display = "none";
-        document.getElementById("quizBtn").style.display = "none";
-        currentRound = 1;
-        let slotCnt = currentDifficulty==="easy"?2:3;
-        let opCnt = currentDifficulty==="easy"?1:2;
-        players = {
-            top: { name:"孩子", score:0, totalMs:0, roundSubmitted:false, curSlots:Array(slotCnt).fill(null), curOps:Array(opCnt).fill(null), cardsUsed:[false,false,false,false], gameCards:[], startRoundTime:0 },
-            bottom: { name:"家长", score:0, totalMs:0, roundSubmitted:false, curSlots:Array(slotCnt).fill(null), curOps:Array(opCnt).fill(null), cardsUsed:[false,false,false,false], gameCards:[], startRoundTime:0 }
-        };
-        buildVersusUI();
-        generateSharedGame();
-        for(let s of ["top","bottom"]) initVersusPlayer(s);
-        document.getElementById("vsRoundInfo").innerHTML = "第 1 / 5 回合 · 等待开始";
-        let startBtn = document.getElementById("startVersusBtn");
-        startBtn.innerText = "▶ 开始对战";
-        startBtn.onclick = () => {
-            if(gameStarted) return;
-            gameStarted = true;
-            document.getElementById("vsRoundInfo").innerHTML = "第 1 / 5 回合 · 对战进行中";
-            startBtn.innerText = "🔄 重新开局";
-            let nowTime = Date.now();
-            players.top.startRoundTime = nowTime;
-            players.bottom.startRoundTime = nowTime;
-            renderVersusPlayer("top");
-            renderVersusPlayer("bottom");
-            if(versusRefreshTimer) clearInterval(versusRefreshTimer);
-            versusRefreshTimer = setInterval(()=>{ if(versusActive && gameStarted) refreshVersusTimers(); }, 200);
-        };
-        document.getElementById("topSubmit").onclick = ()=>submitVersus("top");
-        document.getElementById("bottomSubmit").onclick = ()=>submitVersus("bottom");
-    }
-
-    // 事件绑定
-    document.querySelectorAll(".mode-btn").forEach(btn=>{
-        btn.onclick = ()=>{
-            let mode = btn.dataset.mode;
-            if(mode==="versus") startVersus();
-            else { if(versusActive) exitVersusMode(); else { document.getElementById("singleZone").classList.remove("hide"); document.getElementById("versusZone").classList.remove("show"); document.getElementById("rankArea").style.display = "block"; } }
-            document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
-            btn.classList.add("active");
-            if(!versusActive) refreshLeaderboard();
-        };
-    });
-    document.querySelectorAll(".diff-btn").forEach(btn=>{
-        btn.onclick = () => {
-            if(versusActive && gameStarted) { showMessage("singleMsg","对战中无法切换难度",true); return; }
-            currentDifficulty = btn.dataset.diff;
-            document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
-            btn.classList.add("active");
-            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "🏅 简单模式排行榜" : "🏅 困难模式排行榜";
-            if(!versusActive){
-                generateSingleGame();
-                let need = currentDifficulty==="easy"?2:3;
-                singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-                singleCardData.forEach(c=>c.used=false);
-                renderSingleCards(); renderSingleSlots(); renderOps();
-                refreshLeaderboard();
+    
+    async function switchGame(gameId) {
+        if (currentGame === gameId) return;
+        currentGame = gameId;
+        onlyBest = true;                 // 切换模式时重置为仅最佳成绩
+        currentClassFilter = 'all';
+        sortState = { field: 'date', order: 'desc' };
+        visibleColumns = { rank: true, class: true, name: true, correct: true, time: true, date: true };
+        gameSubTitle.innerText = API_CONFIG[currentGame].sub;
+        tabBtns.forEach(btn => {
+            if (btn.getAttribute('data-game') === gameId) {
+                btn.classList.add('active');
             } else {
-                if(!gameStarted){
-                    generateSharedGame();
-                    let slotCnt = currentDifficulty==="easy"?2:3;
-                    let opCnt = currentDifficulty==="easy"?1:2;
-                    players.top.curSlots = Array(slotCnt).fill(null);
-                    players.top.curOps = Array(opCnt).fill(null);
-                    players.bottom.curSlots = Array(slotCnt).fill(null);
-                    players.bottom.curOps = Array(opCnt).fill(null);
-                    players.top.cardsUsed = [false,false,false,false];
-                    players.bottom.cardsUsed = [false,false,false,false];
-                    players.top.gameCards = [...sharedCards];
-                    players.bottom.gameCards = [...sharedCards];
-                    players.top.roundSubmitted = false;
-                    players.bottom.roundSubmitted = false;
-                    renderVersusPlayer("top");
-                    renderVersusPlayer("bottom");
-                }
+                btn.classList.remove('active');
             }
+        });
+        await refreshDashboard();
+        // 重置列显隐图标
+        const toggleMap = {
+            toggleRankBtn: 'rank', toggleClassBtn: 'class', toggleNameBtn: 'name',
+            toggleCorrectBtn: 'correct', toggleTimeBtn: 'time', toggleDateBtn: 'date'
         };
+        for (const [btnId, col] of Object.entries(toggleMap)) {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = visibleColumns[col] ? 'fas fa-eye' : 'fas fa-eye-slash';
+                btn.classList.toggle('hidden', !visibleColumns[col]);
+            }
+        }
+    }
+    
+    function bindControls() {
+        document.querySelectorAll('.sortable-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const field = header.getAttribute('data-sort');
+                if (field) handleSortClick(field);
+            });
+        });
+        
+        const toggleMap = {
+            toggleRankBtn: 'rank', toggleClassBtn: 'class', toggleNameBtn: 'name',
+            toggleCorrectBtn: 'correct', toggleTimeBtn: 'time', toggleDateBtn: 'date'
+        };
+        for (const [btnId, col] of Object.entries(toggleMap)) {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    visibleColumns[col] = !visibleColumns[col];
+                    updateTableColumnsVisibility();
+                    renderTable(filteredSubmissions);
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = visibleColumns[col] ? 'fas fa-eye' : 'fas fa-eye-slash';
+                    btn.classList.toggle('hidden', !visibleColumns[col]);
+                });
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = visibleColumns[col] ? 'fas fa-eye' : 'fas fa-eye-slash';
+            }
+        }
+        
+        bestOnlyBtn.addEventListener('click', toggleBestOnly);
+        document.getElementById('manualRefreshBtn').addEventListener('click', () => refreshDashboard());
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const game = btn.getAttribute('data-game');
+                if (game) switchGame(game);
+            });
+        });
+    }
+    
+    window.addEventListener('load', () => {
+        bindControls();
+        currentGame = 'easy';
+        gameSubTitle.innerText = API_CONFIG.easy.sub;
+        refreshDashboard();
+        startAutoRefresh();
     });
-    document.getElementById("submitSingle").onclick = onSingleVerify;
-    document.getElementById("skipPractice").onclick = ()=>{ if(!isQuizMode){ generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); } };
-    document.getElementById("quizBtn").onclick = startQuiz;
-    document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
-    document.getElementById("modalConfirm").onclick = ()=>{ let cls = document.getElementById("classSelect").value; let name = document.getElementById("studentNameInput").value.trim(); if(!name) return; currentStudent = { class: cls, name: name }; document.getElementById("infoModal").classList.remove("active"); if(!isQuizMode) startQuiz(); else refreshLeaderboard(); };
-    document.getElementById("modalCancel").onclick = ()=> document.getElementById("infoModal").classList.remove("active");
-
-    // 初始化
-    generateSingleGame();
-    let need = currentDifficulty==="easy"?2:3;
-    singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-    renderSingleCards(); renderSingleSlots(); renderOps();
-    document.querySelector(".mode-btn[data-mode='single']").classList.add("active");
-    refreshLeaderboard();
+    window.addEventListener('beforeunload', () => {
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    });
 </script>
 </body>
 </html>
