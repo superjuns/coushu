@@ -550,6 +550,7 @@
         <h3>✏️ 选手信息</h3>
         <select id="classSelect" style="margin:10px 0; padding:8px; border-radius:30px;"><option>1班</option><option>2班</option><option>3班</option><option>4班</option><option>5班</option><option>6班</option></select>
         <input type="text" id="studentNameInput" placeholder="姓名" style="width:100%; padding:8px; border-radius:30px; border:1px solid #ccc;">
+        <div id="whitelistMsg" style="color:red; font-size:0.8rem; margin-top:6px; display:none;"></div>
         <div style="display:flex; gap:12px; margin-top:16px;"><button id="modalConfirm" style="flex:1; background:#699e7c; border:none; border-radius:40px; padding:8px;">开始</button><button id="modalCancel" style="flex:1; background:#ddd; border:none; border-radius:40px;">取消</button></div>
     </div>
 </div>
@@ -557,10 +558,12 @@
 <script>
     // ---------- API 配置 ----------
     const API_BASE = "https://wzkjgz.site/api/ez1m8p37tv";
+    const WHITELIST_API = "https://wzkjgz.site/api/5tmbx2o6rg/all";
     
     let currentDifficulty = "easy";
     let isQuizMode = false, quizCorrect = 0, quizDone = 0, quizStartTime = 0, quizTimer = null;
     let currentStudent = { name: "", class: "" };
+    let whitelistCache = null; // 缓存白名单数据
     
     // 单人牌局
     let singleCards = [], singleCardData = [], singleSlots = [], singleOps = [];
@@ -576,6 +579,40 @@
         bottom: { name: "👨‍👩 家长", score: 0, totalMs: 0, roundSubmitted: false, curSlots: [], curOps: [], cardsUsed: [], gameCards: [], startRoundTime: 0 }
     };
     let versusRefreshTimer = null;
+
+    // ---------- 白名单相关函数 ----------
+    async function fetchWhitelist() {
+        try {
+            const res = await fetch(WHITELIST_API, { cache: "no-cache" });
+            if (!res.ok) return [];
+            const json = await res.json();
+            const submissions = json.submissions || (Array.isArray(json) ? json : []);
+            // 提取班级和姓名，去重
+            const whitelistSet = new Set();
+            for (let item of submissions) {
+                const cls = item.class ?? item.className ?? "";
+                const name = item.name ?? item.studentName ?? "";
+                if (cls && name) {
+                    whitelistSet.add(`${cls}|${name}`);
+                }
+            }
+            return whitelistSet;
+        } catch(e) {
+            console.warn("白名单加载失败", e);
+            return null;
+        }
+    }
+
+    async function checkWhitelist(cls, name) {
+        if (whitelistCache === null) {
+            whitelistCache = await fetchWhitelist();
+        }
+        if (whitelistCache === null) {
+            // 加载失败时，为了不阻塞使用，允许通过（可根据需要调整）
+            return true;
+        }
+        return whitelistCache.has(`${cls}|${name}`);
+    }
 
     // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩) ----------
     function getApiBase() {
@@ -693,7 +730,7 @@
     }
 
     async function submitScoreToAPI(correct, total, seconds, difficulty, className, studentName) {
-        const api = getApiBase(); // 统一提交地址
+        const api = getApiBase();
         try {
             await fetch(api, {
                 method: "POST",
@@ -899,7 +936,17 @@
     }
     function startQuiz(){
         if(isQuizMode) return;
-        if(!currentStudent.name){ document.getElementById("infoModal").classList.add("active"); return; }
+        if(!currentStudent.name){ 
+            // 如果没有学生信息，弹出模态框
+            document.getElementById("infoModal").classList.add("active");
+            // 清空之前的错误提示
+            document.getElementById("whitelistMsg").style.display = "none";
+            return; 
+        }
+        // 已有学生信息，直接开始
+        doStartQuiz();
+    }
+    function doStartQuiz(){
         isQuizMode=true; quizCorrect=0; quizDone=0; quizStartTime=Date.now();
         document.getElementById("quizPanel").style.display="flex";
         document.getElementById("progressCount").innerText="0/0";
@@ -1197,8 +1244,48 @@
     document.getElementById("skipPractice").onclick = ()=>{ if(!isQuizMode){ generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); } };
     document.getElementById("quizBtn").onclick = startQuiz;
     document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
-    document.getElementById("modalConfirm").onclick = ()=>{ let cls = document.getElementById("classSelect").value; let name = document.getElementById("studentNameInput").value.trim(); if(!name) return; currentStudent = { class: cls, name: name }; document.getElementById("infoModal").classList.remove("active"); if(!isQuizMode) startQuiz(); else refreshLeaderboard(); };
-    document.getElementById("modalCancel").onclick = ()=> document.getElementById("infoModal").classList.remove("active");
+    
+    // 模态框确认按钮 - 增加白名单校验
+    document.getElementById("modalConfirm").onclick = async ()=>{
+        let cls = document.getElementById("classSelect").value;
+        let name = document.getElementById("studentNameInput").value.trim();
+        if(!name) {
+            document.getElementById("whitelistMsg").style.display = "block";
+            document.getElementById("whitelistMsg").innerText = "请输入姓名";
+            return;
+        }
+        // 显示校验中
+        const msgEl = document.getElementById("whitelistMsg");
+        msgEl.style.display = "block";
+        msgEl.innerText = "⏳ 校验中...";
+        msgEl.style.color = "#666";
+        
+        // 检查白名单
+        const isAllowed = await checkWhitelist(cls, name);
+        if (!isAllowed) {
+            msgEl.style.display = "block";
+            msgEl.innerText = "❌ 未在白名单中，请联系老师添加";
+            msgEl.style.color = "red";
+            return;
+        }
+        
+        // 白名单校验通过
+        msgEl.style.display = "none";
+        currentStudent = { class: cls, name: name };
+        document.getElementById("infoModal").classList.remove("active");
+        // 如果是从答题模式入口进来的，直接开始答题
+        if (!isQuizMode) {
+            // 可能是首次登录后点击答题，启动答题
+            doStartQuiz();
+        } else {
+            refreshLeaderboard();
+        }
+    };
+    
+    document.getElementById("modalCancel").onclick = ()=> {
+        document.getElementById("infoModal").classList.remove("active");
+        document.getElementById("whitelistMsg").style.display = "none";
+    };
 
     // 初始化：默认单人模式、简单难度
     generateSingleGame();
