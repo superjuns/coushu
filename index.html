@@ -587,7 +587,6 @@
             if (!res.ok) return [];
             const json = await res.json();
             const submissions = json.submissions || (Array.isArray(json) ? json : []);
-            // 提取班级和姓名，去重
             const whitelistSet = new Set();
             for (let item of submissions) {
                 const cls = item.class ?? item.className ?? "";
@@ -614,7 +613,7 @@
         return whitelistCache.has(`${cls}|${name}`);
     }
 
-    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩) ----------
+    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩，且按当前难度过滤) ----------
     function getApiBase() {
         return API_BASE;
     }
@@ -625,7 +624,14 @@
             const res = await fetch(api, { cache: "no-cache" });
             if (!res.ok) return [];
             const json = await res.json();
-            const submissions = json.submissions || (Array.isArray(json) ? json : []);
+            let submissions = json.submissions || (Array.isArray(json) ? json : []);
+            
+            // 关键：按当前难度过滤
+            submissions = submissions.filter(item => {
+                const diff = item.difficulty ?? item.diff ?? "";
+                return diff === currentDifficulty;
+            });
+
             // 去重：以 班级+姓名 为key，保留正确数最多、时间最短的记录
             const bestMap = new Map();
             for (let item of submissions) {
@@ -668,7 +674,6 @@
         if (records.length === 0) {
             rankGrid.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
         } else {
-            // 将所有记录渲染到同一个两列网格中，自然排列成5行两列
             rankGrid.innerHTML = records.map((item, idx) => {
                 let medal = "";
                 let medalClass = "";
@@ -937,13 +942,10 @@
     function startQuiz(){
         if(isQuizMode) return;
         if(!currentStudent.name){ 
-            // 如果没有学生信息，弹出模态框
             document.getElementById("infoModal").classList.add("active");
-            // 清空之前的错误提示
             document.getElementById("whitelistMsg").style.display = "none";
             return; 
         }
-        // 已有学生信息，直接开始
         doStartQuiz();
     }
     function doStartQuiz(){
@@ -1245,7 +1247,6 @@
     document.getElementById("quizBtn").onclick = startQuiz;
     document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
     
-    // 模态框确认按钮 - 增加白名单校验
     document.getElementById("modalConfirm").onclick = async ()=>{
         let cls = document.getElementById("classSelect").value;
         let name = document.getElementById("studentNameInput").value.trim();
@@ -1254,13 +1255,11 @@
             document.getElementById("whitelistMsg").innerText = "请输入姓名";
             return;
         }
-        // 显示校验中
         const msgEl = document.getElementById("whitelistMsg");
         msgEl.style.display = "block";
         msgEl.innerText = "⏳ 校验中...";
         msgEl.style.color = "#666";
         
-        // 检查白名单
         const isAllowed = await checkWhitelist(cls, name);
         if (!isAllowed) {
             msgEl.style.display = "block";
@@ -1269,13 +1268,10 @@
             return;
         }
         
-        // 白名单校验通过
         msgEl.style.display = "none";
         currentStudent = { class: cls, name: name };
         document.getElementById("infoModal").classList.remove("active");
-        // 如果是从答题模式入口进来的，直接开始答题
         if (!isQuizMode) {
-            // 可能是首次登录后点击答题，启动答题
             doStartQuiz();
         } else {
             refreshLeaderboard();
