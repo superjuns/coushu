@@ -556,8 +556,7 @@
 
 <script>
     // ---------- API 配置 ----------
-    const API_EASY = "https://quickform.cn/api/qo3ux2czpi";
-    const API_HARD = "https://quickform.cn/api/q12gcimniu";
+    const API_BASE = "https://wzkjgz.site/api/ez1m8p37tv";
     
     let currentDifficulty = "easy";
     let isQuizMode = false, quizCorrect = 0, quizDone = 0, quizStartTime = 0, quizTimer = null;
@@ -580,7 +579,7 @@
 
     // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩) ----------
     function getApiBase() {
-        return currentDifficulty === "easy" ? API_EASY : API_HARD;
+        return API_BASE;
     }
 
     async function fetchLeaderboardData() {
@@ -694,7 +693,7 @@
     }
 
     async function submitScoreToAPI(correct, total, seconds, difficulty, className, studentName) {
-        const api = difficulty === "easy" ? API_EASY : API_HARD;
+        const api = getApiBase(); // 统一提交地址
         try {
             await fetch(api, {
                 method: "POST",
