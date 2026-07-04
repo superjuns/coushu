@@ -535,7 +535,7 @@
 
     <!-- 排行榜 (单人模式) - 统一两列布局 -->
     <div id="rankArea" class="rank-wrapper">
-        <h4 id="rankTitle" style="text-align:center;">🏅 简单模式排行榜</h4>
+        <h4 id="rankTitle" style="text-align:center;">🏅 今日 · 简单模式排行榜</h4>
         <div class="rank-grid" id="rankGrid"></div>
         <div style="background:#fff0dd; border-radius:40px; padding:8px; margin-top:8px;" id="liveRankCard">
             <div class="live-rank-title" style="font-weight:700;">📊 玩家实时排名</div>
@@ -613,7 +613,7 @@
         return whitelistCache.has(`${cls}|${name}`);
     }
 
-    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩，且按当前难度过滤) ----------
+    // ---------- 排行榜相关函数 (去重：每个学生只保留最佳成绩，按当前难度和当日日期过滤) ----------
     function getApiBase() {
         return API_BASE;
     }
@@ -626,10 +626,20 @@
             const json = await res.json();
             let submissions = json.submissions || (Array.isArray(json) ? json : []);
             
-            // 关键：按当前难度过滤
+            // 1. 按当前难度过滤
             submissions = submissions.filter(item => {
                 const diff = item.difficulty ?? item.diff ?? "";
                 return diff === currentDifficulty;
+            });
+
+            // 2. 按当日日期过滤（本地日期）
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+            const endOfDay = startOfDay + 86400000 - 1; // 当天最后一毫秒
+
+            submissions = submissions.filter(item => {
+                const ts = item.timestamp ? new Date(item.timestamp).getTime() : 0;
+                return ts >= startOfDay && ts <= endOfDay;
             });
 
             // 去重：以 班级+姓名 为key，保留正确数最多、时间最短的记录
@@ -672,7 +682,7 @@
         if (!rankGrid) return;
         
         if (records.length === 0) {
-            rankGrid.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">暂无数据</div>';
+            rankGrid.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">今日暂无数据</div>';
         } else {
             rankGrid.innerHTML = records.map((item, idx) => {
                 let medal = "";
@@ -716,7 +726,7 @@
             }
         }
         if (userIndex === -1 || !userRecord) {
-            document.getElementById("liveRankContent").innerHTML = `👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>🏆 暂无成绩，完成5题后上榜`;
+            document.getElementById("liveRankContent").innerHTML = `👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>🏆 今日暂无成绩，完成5题后上榜`;
             return;
         }
         const rank = userIndex + 1;
@@ -724,7 +734,7 @@
         let rankText = rank === 1 ? "🥇 第1名" : (rank === 2 ? "🥈 第2名" : (rank === 3 ? "🥉 第3名" : `第 ${rank} 名`));
         document.getElementById("liveRankContent").innerHTML = `
             👤 ${escapeHtml(currentStudent.name)} (${escapeHtml(currentStudent.class)})<br>
-            🎯 最佳成绩：✅ ${userRecord.correct}/5 题，⏱️ ${userRecord.seconds} 秒<br>
+            🎯 今日最佳：✅ ${userRecord.correct}/5 题，⏱️ ${userRecord.seconds} 秒<br>
             🏆 当前排名：${rankText} (共 ${total} 人)
         `;
     }
@@ -1213,7 +1223,7 @@
             currentDifficulty = btn.dataset.diff;
             document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
             btn.classList.add("active");
-            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "🏅 简单模式排行榜" : "🏅 困难模式排行榜";
+            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "🏅 今日 · 简单模式排行榜" : "🏅 今日 · 困难模式排行榜";
             if(!versusActive){
                 generateSingleGame();
                 let need = currentDifficulty==="easy"?2:3;
