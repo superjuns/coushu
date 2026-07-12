@@ -618,7 +618,13 @@
         return API_BASE;
     }
 
-    async function fetchLeaderboardData() {
+    function getBeijingTodayStr() {
+        var d = new Date();
+        d.setTime(d.getTime() + 8 * 3600 * 1000);
+        return d.toISOString().slice(0, 10);
+    }
+
+        async function fetchLeaderboardData() {
         const api = getApiBase() + "/all";
         try {
             const res = await fetch(api, { cache: "no-cache" });
@@ -632,14 +638,12 @@
                 return diff === currentDifficulty;
             });
 
-            // 2. 按当日日期过滤（本地日期）
-            const now = new Date();
-            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
-            const endOfDay = startOfDay + 86400000 - 1; // 当天最后一毫秒
+            // 2. 按当日日期过滤（北京时间）
+            const todayStr = getBeijingTodayStr();
 
             submissions = submissions.filter(item => {
-                const ts = item.timestamp ? new Date(item.timestamp).getTime() : 0;
-                return ts >= startOfDay && ts <= endOfDay;
+                const dateStr = item.submitted_at || item.timestamp || '';
+                return String(dateStr).slice(0, 10) === todayStr;
             });
 
             // 去重：以 班级+姓名 为key，保留正确数最多、时间最短的记录
