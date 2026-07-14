@@ -559,6 +559,30 @@
     // ---------- API 配置 ----------
     const API_BASE = "https://wzkjgz.site/api/ez1m8p37tv";
     const WHITELIST_API = "https://wzkjgz.site/api/5tmbx2o6rg/all";
+
+    // URL参数自动登录工具函数
+    function getUrlParam(name) {
+        return new URLSearchParams(window.location.search).get(name) || '';
+    }
+    function normStr(s) {
+        return String(s || '').replace(/班/g, '').replace(/\s/g, '').toLowerCase();
+    }
+
+    // URL参数自动登录（平台跳转时免输入）
+    async function tryAutoLoginFromUrl() {
+        const cls = getUrlParam('class') || getUrlParam('cls') || getUrlParam('班级');
+        const name = getUrlParam('name') || getUrlParam('姓名');
+        if (!cls || !name) return false;
+        const normCls = /^\d+$/.test(cls) ? cls + '班' : cls;
+        try {
+            const isAllowed = await checkWhitelist(normCls, name);
+            if (!isAllowed) return false;
+            localStorage.setItem('coushu_class', normCls);
+            localStorage.setItem('coushu_name', name);
+            currentStudent = { class: normCls, name: name };
+            return true;
+        } catch (e) { return false; }
+    }
     
     let currentDifficulty = "easy";
     let isQuizMode = false, quizCorrect = 0, quizDone = 0, quizStartTime = 0, quizTimer = null;
@@ -955,6 +979,14 @@
     }
     function startQuiz(){
         if(isQuizMode) return;
+        // 如果 localStorage 有保存的登录信息，先恢复
+        if(!currentStudent.name){
+            const savedCls = localStorage.getItem('coushu_class');
+            const savedName = localStorage.getItem('coushu_name');
+            if(savedCls && savedName){
+                currentStudent = { class: savedCls, name: savedName };
+            }
+        }
         if(!currentStudent.name){ 
             document.getElementById("infoModal").classList.add("active");
             document.getElementById("whitelistMsg").style.display = "none";
@@ -1284,6 +1316,8 @@
         
         msgEl.style.display = "none";
         currentStudent = { class: cls, name: name };
+        localStorage.setItem('coushu_class', cls);
+        localStorage.setItem('coushu_name', name);
         document.getElementById("infoModal").classList.remove("active");
         if (!isQuizMode) {
             doStartQuiz();
@@ -1305,6 +1339,9 @@
     document.querySelector(".mode-btn[data-mode='single']").classList.add("active");
     document.querySelector(".diff-btn[data-diff='easy']").classList.add("active");
     refreshLeaderboard();
+    // URL参数自动登录（平台跳转时免输入）
+    tryAutoLoginFromUrl();
+
 </script>
 </body>
 </html>
