@@ -978,7 +978,18 @@
         refreshLeaderboard();
     }
     function startQuiz(){
-        if(isQuizMode) return;
+        if(isQuizMode) {
+            // 手动结束答题，不提交成绩
+            if(quizTimer) clearInterval(quizTimer);
+            isQuizMode=false;
+            const sec = Math.floor((Date.now()-quizStartTime)/1000);
+            document.getElementById("quizPanel").style.display="none";
+            document.getElementById("quizBtn").disabled=false;
+            document.getElementById("quizBtn").innerText="🏆 答题模式";
+            showMessage("singleMsg",`已退出答题模式`,false);
+            refreshLeaderboard();
+            return;
+        }
         // 如果 localStorage 有保存的登录信息，先恢复
         if(!currentStudent.name){
             const savedCls = localStorage.getItem('coushu_class');
@@ -1000,8 +1011,8 @@
         document.getElementById("progressCount").innerText="0/0";
         if(quizTimer) clearInterval(quizTimer);
         quizTimer = setInterval(()=>{ if(isQuizMode) document.getElementById("timerDisplay").innerText = Math.floor((Date.now()-quizStartTime)/1000); },500);
-        document.getElementById("quizBtn").disabled=true;
-        document.getElementById("quizBtn").innerText="⏳ 答题中";
+        document.getElementById("quizBtn").disabled=false;
+        document.getElementById("quizBtn").innerText="⏹ 结束答题";
         generateSingleGame();
         let need = currentDifficulty==="easy"?2:3;
         singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
