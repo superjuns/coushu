@@ -804,7 +804,8 @@ window.fetch = function(url, options) {
                     class: className,
                     name: studentName,
                     timestamp: new Date().toISOString(),
-                    game: "poker_math"
+                    game: "poker_math",
+                    submitted_at: new Date().toISOString()
                 })
             });
             await refreshLeaderboard();
