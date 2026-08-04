@@ -508,7 +508,7 @@
         body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{min-height:50px;border-radius:16px;background:#fff1ef}
         body[data-yiqi-game="card-sum"] .practice-skip,body[data-yiqi-game="card-sum"] #quizSkipBtn{min-height:40px;border:0;border-radius:12px;background:#fff;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .check-btn{min-height:48px;border:1px solid #ffd0ca;border-radius:14px;background:#fff;color:#1d1d1f;box-shadow:none}
-        body[data-yiqi-game="card-sum"] .start-versus-btn{min-height:48px;border-radius:14px;background:#007aff;color:#fff;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .start-versus-btn{min-height:48px;margin:0 0 12px;border-radius:14px;background:#007aff;color:#fff;box-shadow:none}
         body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:14px;padding:14px;border-radius:22px;background:#f5f5f7;box-shadow:none}
         body[data-yiqi-game="card-sum"] .rank-item{border:0;border-radius:13px;background:#fff;box-shadow:none}
         body[data-yiqi-game="card-sum"] #liveRankCard{border-radius:14px!important;background:#fff!important}
@@ -527,58 +527,95 @@
         body[data-yiqi-game="card-sum"] .modal-cancel{order:2;background:transparent;color:#6e6e73}
         body[data-yiqi-game="card-sum"] .modal-actions button:active{transform:scale(.97)}
         @media(max-width:550px){body[data-yiqi-game="card-sum"]{padding:6px}body[data-yiqi-game="card-sum"] .game-container{padding:12px 10px;border-radius:22px}body[data-yiqi-game="card-sum"] h1{font-size:23px}body[data-yiqi-game="card-sum"] .controls-row{gap:5px;padding:6px}body[data-yiqi-game="card-sum"] .cards-grid{margin:8px 0;gap:7px}body[data-yiqi-game="card-sum"] .rank-grid{grid-template-columns:1fr}}
+        /* 第二轮：红黑牌面个性 + 稳定首屏操作链 */
+        body[data-yiqi-game="card-sum"] .game-header{margin-bottom:10px}
+        body[data-yiqi-game="card-sum"] .game-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding:2px 4px}
+        body[data-yiqi-game="card-sum"] .game-brand{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:2px}
+        body[data-yiqi-game="card-sum"] .game-kicker{color:var(--yiqi-accent);font-size:11px;font-weight:750;letter-spacing:.12em;line-height:1.2}
+        body[data-yiqi-game="card-sum"] h1.game-title{margin:0;color:#1d1d1f;font-size:clamp(27px,5vw,36px);font-weight:750;letter-spacing:-.035em;line-height:1.08;text-align:left}
+        body[data-yiqi-game="card-sum"] .controls-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+        body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px}
+        body[data-yiqi-game="card-sum"] .mode-btn,body[data-yiqi-game="card-sum"] .diff-btn{width:100%;padding:0 8px}
+        body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{margin:8px 0;padding:6px 12px}
+        body[data-yiqi-game="card-sum"] .target-number{background:#fff;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .practice-skip,body[data-yiqi-game="card-sum"] #quizSkipBtn{background:#e9e9ee}
+        body[data-yiqi-game="card-sum"] .cards-grid{min-height:96px;margin:10px 0;align-items:center}
+        body[data-yiqi-game="card-sum"] .card{border:1px solid #e5e5ea;background:#fff;box-shadow:0 5px 14px rgba(0,0,0,.08)}
+        body[data-yiqi-game="card-sum"] .operator-row{margin:8px 0;gap:14px}
+        body[data-yiqi-game="card-sum"] .op-circle{border:0;border-radius:14px;background:#f2f2f7;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .op-circle.active{background:#1d1d1f;color:#fff}
+        body[data-yiqi-game="card-sum"] .slots-area{min-height:100px;margin:8px 0;padding:8px;border-radius:18px;background:#f5f5f7}
+        body[data-yiqi-game="card-sum"] .slot{border:1px dashed #c7c7cc;border-radius:14px;background:#fff;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .slot.filled{border:1px solid #a9a9af;background:#fff}
+        body[data-yiqi-game="card-sum"] .op-place{border-radius:12px;background:#e9e9ee}
+        body[data-yiqi-game="card-sum"] .check-btn{width:min(100%,420px);margin:7px auto}
+        body[data-yiqi-game="card-sum"] .round-bar{border-radius:16px;background:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .versus-submit{min-height:44px;border-radius:14px;background:#007aff;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .rank-wrapper h4{margin:0 0 10px;color:#1d1d1f;text-align:left!important;font-size:17px}
+        body[data-yiqi-game="card-sum"] .rank-num{color:#6e6e73}
+        body[data-yiqi-game="card-sum"] .rank-class,body[data-yiqi-game="card-sum"] .rank-correct,body[data-yiqi-game="card-sum"] .rank-time{background:#f2f2f7;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] #liveRankCard{padding:10px!important;border-radius:14px!important;background:#fff!important}
+        body[data-yiqi-game="card-sum"] .live-rank-title{color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .modal-card h2{font-size:24px}
+        @media(max-width:550px){body[data-yiqi-game="card-sum"] .game-titlebar{margin-bottom:7px}body[data-yiqi-game="card-sum"] .game-kicker{font-size:9px}body[data-yiqi-game="card-sum"] h1.game-title{font-size:24px}body[data-yiqi-game="card-sum"] .quiz-launch{min-height:40px;padding:0 11px;font-size:12px}body[data-yiqi-game="card-sum"] .controls-row{padding:5px}body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{min-height:40px}body[data-yiqi-game="card-sum"] .cards-grid{min-height:78px}body[data-yiqi-game="card-sum"] .operator-row{margin:6px 0}body[data-yiqi-game="card-sum"] .slots-area{min-height:84px;padding:6px}body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:10px}body[data-yiqi-game="card-sum"] footer{display:none}}
+        @media(max-width:370px),(max-height:700px){body[data-yiqi-game="card-sum"] .game-container{padding:9px 8px}body[data-yiqi-game="card-sum"] .game-header{margin-bottom:6px}body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{min-height:44px;margin:5px 0}body[data-yiqi-game="card-sum"] .cards-grid{min-height:72px;margin:5px 0}body[data-yiqi-game="card-sum"] .card{width:52px;height:70px}body[data-yiqi-game="card-sum"] .op-circle{width:40px;height:40px}body[data-yiqi-game="card-sum"] .slots-area{min-height:78px;margin:5px 0}body[data-yiqi-game="card-sum"] .slot{width:46px;height:62px}body[data-yiqi-game="card-sum"] .op-place{width:38px;height:38px}body[data-yiqi-game="card-sum"] .check-btn{min-height:44px}body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:8px}}
     </style>
 </head>
 <body data-yiqi-game="card-sum">
 <div class="game-container" data-yiqi-core-flow>
     <div class="game-header">
-        <h1>🃏 凑数·对战</h1>
+        <div class="game-titlebar">
+            <div class="game-brand">
+                <span class="game-kicker">CARD SUM</span>
+                <h1 class="game-title">扑克牌凑数</h1>
+            </div>
+            <button class="quiz-launch" id="quizBtn" data-yiqi-action="answer">答题模式</button>
+        </div>
         <div class="controls-row">
             <div class="mode-group">
-                <button class="mode-btn" data-mode="single">🎯 单人</button>
-                <button class="mode-btn" data-mode="versus">👥 对战</button>
+                <button class="mode-btn" data-mode="single">单人</button>
+                <button class="mode-btn" data-mode="versus">对战</button>
             </div>
             <div class="diff-group" id="diffGroup">
-                <button class="diff-btn" data-diff="easy">✨ 简单</button>
-                <button class="diff-btn" data-diff="hard">🔥 困难</button>
+                <button class="diff-btn" data-diff="easy">简单</button>
+                <button class="diff-btn" data-diff="hard">困难</button>
             </div>
-            <button class="quiz-launch" id="quizBtn" data-yiqi-action="answer">🏆 答题模式</button>
         </div>
     </div>
 
     <!-- 单人模式 -->
     <div id="singleZone" class="single-area">
-        <div class="target-panel"><span>🎯 目标</span><span class="target-number" id="targetNum">14</span><button class="practice-skip" id="skipPractice">🔄 换牌</button></div>
+        <div class="target-panel"><span>目标</span><span class="target-number" id="targetNum">14</span><button class="practice-skip" id="skipPractice">换牌</button></div>
         <div class="quiz-panel" id="quizPanel" style="display: none;"><span>⏱️ <span id="timerDisplay">0</span> s</span><span>✅ <span id="progressCount">0</span>/5</span><button id="quizSkipBtn">⏩ 跳过</button></div>
         <div class="cards-grid" id="cardsGrid"></div>
         <div class="operator-row" id="opsRow"></div>
         <div class="slots-area" id="slotsArea"></div>
-        <button class="check-btn" id="submitSingle" data-yiqi-action="verify">✔ 验证算式 ✔</button>
+        <button class="check-btn" id="submitSingle" data-yiqi-action="verify">验证算式</button>
         <div id="singleMsg" class="message-toast"></div>
     </div>
 
     <!-- 双人对战区（儿童面板旋转180°） -->
     <div id="versusZone" class="versus-area">
         <div class="round-bar" id="vsRoundInfo">第 1 / 5 回合 · 等待开始</div>
+        <button class="start-versus-btn" id="startVersusBtn" data-yiqi-action="answer">开始对战</button>
         <div class="versus-players" id="vsPlayers"></div>
-        <button class="start-versus-btn" id="startVersusBtn" data-yiqi-action="answer">▶ 开始对战</button>
     </div>
 
     <!-- 排行榜 (单人模式) - 统一两列布局 -->
     <div id="rankArea" class="rank-wrapper">
-        <h4 id="rankTitle" style="text-align:center;">🏅 今日 · 简单模式排行榜</h4>
+        <h4 id="rankTitle" style="text-align:center;">今日 · 简单模式排行榜</h4>
         <div class="rank-grid" id="rankGrid"></div>
         <div style="background:#fff0dd; border-radius:40px; padding:8px; margin-top:8px;" id="liveRankCard">
-            <div class="live-rank-title" style="font-weight:700;">📊 玩家实时排名</div>
+            <div class="live-rank-title" style="font-weight:700;">我的今日排名</div>
             <div class="live-rank-content" id="liveRankContent">未登录或暂无成绩</div>
         </div>
     </div>
     <footer>减法结果非负 | 对战模式支持简单/困难 | 孩子将手机倒置观看 | 点击「开始对战」后计时开始</footer>
 </div>
 
-<div id="infoModal" class="modal">
+<div id="infoModal" class="modal yiqi-identity-overlay" role="dialog" aria-modal="true" aria-labelledby="cardSumIdentityTitle">
     <div class="modal-card">
-        <h2>🃏 答题挑战</h2>
+        <h2 id="cardSumIdentityTitle">扑克牌凑数挑战</h2>
         <p class="modal-subtitle">选择班级并输入姓名，开始计时答题</p>
         <div class="modal-field">
             <label for="classSelect">班级</label>
@@ -770,7 +807,7 @@ window.fetch = function(url, options) {
         if (records.length === 0) {
             rankGrid.innerHTML = '<div class="rank-item" style="justify-content:center; grid-column: span 2;">今日暂无数据</div>';
         } else {
-            rankGrid.innerHTML = records.map((item, idx) => {
+            rankGrid.innerHTML = records.slice(0, 5).map((item, idx) => {
                 let medal = "";
                 let medalClass = "";
                 if (idx === 0) { medal = "🥇"; medalClass = "gold"; }
@@ -1029,7 +1066,7 @@ window.fetch = function(url, options) {
         isQuizMode=false;
         document.getElementById("quizPanel").style.display="none";
         document.getElementById("quizBtn").disabled=false;
-        document.getElementById("quizBtn").innerText="🏆 答题模式";
+        document.getElementById("quizBtn").innerText="答题模式";
         showMessage("singleMsg",`完成！${quizCorrect}/5题，用时${sec}秒`,false);
         if(currentStudent.name && currentStudent.class) {
             submitScoreToAPI(quizCorrect, 5, sec, currentDifficulty, currentStudent.class, currentStudent.name);
@@ -1044,7 +1081,7 @@ window.fetch = function(url, options) {
             const sec = Math.floor((Date.now()-quizStartTime)/1000);
             document.getElementById("quizPanel").style.display="none";
             document.getElementById("quizBtn").disabled=false;
-            document.getElementById("quizBtn").innerText="🏆 答题模式";
+            document.getElementById("quizBtn").innerText="答题模式";
             showMessage("singleMsg",`已退出答题模式`,false);
             refreshLeaderboard();
             return;
@@ -1071,7 +1108,7 @@ window.fetch = function(url, options) {
         if(quizTimer) clearInterval(quizTimer);
         quizTimer = setInterval(()=>{ if(isQuizMode) document.getElementById("timerDisplay").innerText = Math.floor((Date.now()-quizStartTime)/1000); },500);
         document.getElementById("quizBtn").disabled=false;
-        document.getElementById("quizBtn").innerText="⏹ 结束答题";
+        document.getElementById("quizBtn").innerText="结束答题";
         generateSingleGame();
         let need = currentDifficulty==="easy"?2:3;
         singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
@@ -1294,7 +1331,7 @@ window.fetch = function(url, options) {
         for(let s of ["top","bottom"]) initVersusPlayer(s);
         document.getElementById("vsRoundInfo").innerHTML = "第 1 / 5 回合 · 等待开始";
         let startBtn = document.getElementById("startVersusBtn");
-        startBtn.innerText = "▶ 开始对战";
+        startBtn.innerText = "开始对战";
         startBtn.onclick = () => {
             if(gameStarted) return;
             gameStarted = true;
@@ -1329,7 +1366,7 @@ window.fetch = function(url, options) {
             currentDifficulty = btn.dataset.diff;
             document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
             btn.classList.add("active");
-            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "🏅 今日 · 简单模式排行榜" : "🏅 今日 · 困难模式排行榜";
+            document.getElementById("rankTitle").innerText = currentDifficulty === "easy" ? "今日 · 简单模式排行榜" : "今日 · 困难模式排行榜";
             if(!versusActive){
                 generateSingleGame();
                 let need = currentDifficulty==="easy"?2:3;
