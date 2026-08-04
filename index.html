@@ -512,7 +512,20 @@
         body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:14px;padding:14px;border-radius:22px;background:#f5f5f7;box-shadow:none}
         body[data-yiqi-game="card-sum"] .rank-item{border:0;border-radius:13px;background:#fff;box-shadow:none}
         body[data-yiqi-game="card-sum"] #liveRankCard{border-radius:14px!important;background:#fff!important}
-        body[data-yiqi-game="card-sum"] .modal-card{border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.22)}
+        body[data-yiqi-game="card-sum"] .modal{padding:20px;background:rgba(0,0,0,.42);transition:opacity 180ms cubic-bezier(.23,1,.32,1),visibility 180ms}
+        body[data-yiqi-game="card-sum"] .modal-card{width:min(100%,390px);padding:26px 24px 20px;border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.22);text-align:left}
+        body[data-yiqi-game="card-sum"] .modal-card h2{margin:0;color:#1d1d1f;font-size:22px;line-height:1.25;letter-spacing:-.02em;text-align:center}
+        body[data-yiqi-game="card-sum"] .modal-subtitle{margin:8px 0 22px;color:#6e6e73;font-size:14px;line-height:1.5;text-align:center}
+        body[data-yiqi-game="card-sum"] .modal-field{margin-bottom:15px}
+        body[data-yiqi-game="card-sum"] .modal-field label{display:block;margin:0 0 7px;color:#1d1d1f;font-size:14px;font-weight:650}
+        body[data-yiqi-game="card-sum"] .modal-field select,body[data-yiqi-game="card-sum"] .modal-field input{width:100%;min-height:48px;padding:0 14px;border:1px solid #d2d2d7;border-radius:13px;background:#fff;color:#1d1d1f;font:inherit;font-size:16px;outline:none;transition:border-color 140ms ease,box-shadow 140ms ease}
+        body[data-yiqi-game="card-sum"] .modal-field select:focus,body[data-yiqi-game="card-sum"] .modal-field input:focus{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12)}
+        body[data-yiqi-game="card-sum"] .modal-error{min-height:20px;margin:0 0 8px;color:#ff3b30;font-size:13px;text-align:center}
+        body[data-yiqi-game="card-sum"] .modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+        body[data-yiqi-game="card-sum"] .modal-actions button{width:100%;min-height:48px;border:0;border-radius:14px;font:inherit;font-size:16px;font-weight:650;cursor:pointer;transition:transform 120ms cubic-bezier(.23,1,.32,1),opacity 120ms ease}
+        body[data-yiqi-game="card-sum"] .modal-confirm{order:1;background:#007aff;color:#fff}
+        body[data-yiqi-game="card-sum"] .modal-cancel{order:2;background:transparent;color:#6e6e73}
+        body[data-yiqi-game="card-sum"] .modal-actions button:active{transform:scale(.97)}
         @media(max-width:550px){body[data-yiqi-game="card-sum"]{padding:6px}body[data-yiqi-game="card-sum"] .game-container{padding:12px 10px;border-radius:22px}body[data-yiqi-game="card-sum"] h1{font-size:23px}body[data-yiqi-game="card-sum"] .controls-row{gap:5px;padding:6px}body[data-yiqi-game="card-sum"] .cards-grid{margin:8px 0;gap:7px}body[data-yiqi-game="card-sum"] .rank-grid{grid-template-columns:1fr}}
     </style>
 </head>
@@ -565,11 +578,21 @@
 
 <div id="infoModal" class="modal">
     <div class="modal-card">
-        <h3>✏️ 选手信息</h3>
-        <select id="classSelect" style="margin:10px 0; padding:8px; border-radius:30px;"><option>1班</option><option>2班</option><option>3班</option><option>4班</option><option>5班</option><option>6班</option></select>
-        <input type="text" id="studentNameInput" placeholder="姓名" style="width:100%; padding:8px; border-radius:30px; border:1px solid #ccc;">
-        <div id="whitelistMsg" style="color:red; font-size:0.8rem; margin-top:6px; display:none;"></div>
-        <div style="display:flex; gap:12px; margin-top:16px;"><button id="modalConfirm" style="flex:1; background:#699e7c; border:none; border-radius:40px; padding:8px;">开始</button><button id="modalCancel" style="flex:1; background:#ddd; border:none; border-radius:40px;">取消</button></div>
+        <h2>🃏 答题挑战</h2>
+        <p class="modal-subtitle">选择班级并输入姓名，开始计时答题</p>
+        <div class="modal-field">
+            <label for="classSelect">班级</label>
+            <select id="classSelect"><option>1班</option><option>2班</option><option>3班</option><option>4班</option><option>5班</option><option>6班</option></select>
+        </div>
+        <div class="modal-field">
+            <label for="studentNameInput">姓名</label>
+            <input type="text" id="studentNameInput" placeholder="请输入你的姓名" maxlength="20">
+        </div>
+        <div id="whitelistMsg" class="modal-error"></div>
+        <div class="modal-actions">
+            <button id="modalConfirm" class="modal-confirm">开始答题</button>
+            <button id="modalCancel" class="modal-cancel">取消</button>
+        </div>
     </div>
 </div>
 
