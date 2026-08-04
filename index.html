@@ -496,10 +496,28 @@
                 gap: 6px;
             }
         }
+        /* 一起数学：棋盘推理模板 · 扑克牌个性为红黑牌面 */
+        body[data-yiqi-game="card-sum"]{--yiqi-accent:#ff3b30;--yiqi-accent-soft:#fff1ef;display:block;min-height:100svh;padding:12px;background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif}
+        body[data-yiqi-game="card-sum"] .game-container{width:min(100%,800px);margin:0 auto;padding:18px;border-radius:28px;background:#fff;box-shadow:0 10px 32px rgba(0,0,0,.06);backdrop-filter:none}
+        body[data-yiqi-game="card-sum"] h1{margin-bottom:10px;background:none;color:#1d1d1f;font-size:26px;letter-spacing:-.02em}
+        body[data-yiqi-game="card-sum"] .controls-row{padding:8px;border-radius:18px;background:#f5f5f7}
+        body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{min-height:44px;padding:4px;border-radius:14px;background:#fff}
+        body[data-yiqi-game="card-sum"] .mode-btn,body[data-yiqi-game="card-sum"] .diff-btn{min-height:36px;border-radius:11px;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .mode-btn.active,body[data-yiqi-game="card-sum"] .diff-btn.active{background:#1d1d1f;color:#fff;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .quiz-launch{min-height:44px;border-radius:14px;background:#007aff;color:#fff}
+        body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{min-height:50px;border-radius:16px;background:#fff1ef}
+        body[data-yiqi-game="card-sum"] .practice-skip,body[data-yiqi-game="card-sum"] #quizSkipBtn{min-height:40px;border:0;border-radius:12px;background:#fff;color:#1d1d1f}
+        body[data-yiqi-game="card-sum"] .check-btn{min-height:48px;border:1px solid #ffd0ca;border-radius:14px;background:#fff;color:#1d1d1f;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .start-versus-btn{min-height:48px;border-radius:14px;background:#007aff;color:#fff;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:14px;padding:14px;border-radius:22px;background:#f5f5f7;box-shadow:none}
+        body[data-yiqi-game="card-sum"] .rank-item{border:0;border-radius:13px;background:#fff;box-shadow:none}
+        body[data-yiqi-game="card-sum"] #liveRankCard{border-radius:14px!important;background:#fff!important}
+        body[data-yiqi-game="card-sum"] .modal-card{border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.22)}
+        @media(max-width:550px){body[data-yiqi-game="card-sum"]{padding:6px}body[data-yiqi-game="card-sum"] .game-container{padding:12px 10px;border-radius:22px}body[data-yiqi-game="card-sum"] h1{font-size:23px}body[data-yiqi-game="card-sum"] .controls-row{gap:5px;padding:6px}body[data-yiqi-game="card-sum"] .cards-grid{margin:8px 0;gap:7px}body[data-yiqi-game="card-sum"] .rank-grid{grid-template-columns:1fr}}
     </style>
 </head>
-<body>
-<div class="game-container">
+<body data-yiqi-game="card-sum">
+<div class="game-container" data-yiqi-core-flow>
     <div class="game-header">
         <h1>🃏 凑数·对战</h1>
         <div class="controls-row">
@@ -511,7 +529,7 @@
                 <button class="diff-btn" data-diff="easy">✨ 简单</button>
                 <button class="diff-btn" data-diff="hard">🔥 困难</button>
             </div>
-            <button class="quiz-launch" id="quizBtn">🏆 答题模式</button>
+            <button class="quiz-launch" id="quizBtn" data-yiqi-action="answer">🏆 答题模式</button>
         </div>
     </div>
 
@@ -522,7 +540,7 @@
         <div class="cards-grid" id="cardsGrid"></div>
         <div class="operator-row" id="opsRow"></div>
         <div class="slots-area" id="slotsArea"></div>
-        <button class="check-btn" id="submitSingle">✔ 验证算式 ✔</button>
+        <button class="check-btn" id="submitSingle" data-yiqi-action="verify">✔ 验证算式 ✔</button>
         <div id="singleMsg" class="message-toast"></div>
     </div>
 
@@ -530,7 +548,7 @@
     <div id="versusZone" class="versus-area">
         <div class="round-bar" id="vsRoundInfo">第 1 / 5 回合 · 等待开始</div>
         <div class="versus-players" id="vsPlayers"></div>
-        <button class="start-versus-btn" id="startVersusBtn">▶ 开始对战</button>
+        <button class="start-versus-btn" id="startVersusBtn" data-yiqi-action="answer">▶ 开始对战</button>
     </div>
 
     <!-- 排行榜 (单人模式) - 统一两列布局 -->
