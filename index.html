@@ -505,7 +505,8 @@
         body[data-yiqi-game="card-sum"] .mode-btn,body[data-yiqi-game="card-sum"] .diff-btn{min-height:36px;border-radius:11px;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .mode-btn.active,body[data-yiqi-game="card-sum"] .diff-btn.active{background:#1d1d1f;color:#fff;box-shadow:none}
         body[data-yiqi-game="card-sum"] .quiz-launch{min-height:44px;border-radius:14px;background:#007aff;color:#fff}
-        body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{min-height:50px;border-radius:16px;background:#fff1ef}
+        body[data-yiqi-game="card-sum"] .target-panel{min-height:50px;border-radius:16px;background:#fff1ef}
+        body[data-yiqi-game="card-sum"] .quiz-panel{min-height:50px;border-radius:16px;background:#f2f2f7;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .practice-skip,body[data-yiqi-game="card-sum"] #quizSkipBtn{min-height:40px;border:0;border-radius:12px;background:#fff;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .check-btn{min-height:48px;border:1px solid #ffd0ca;border-radius:14px;background:#fff;color:#1d1d1f;box-shadow:none}
         body[data-yiqi-game="card-sum"] .start-versus-btn{min-height:48px;margin:0 0 12px;border-radius:14px;background:#007aff;color:#fff;box-shadow:none}
@@ -536,7 +537,11 @@
         body[data-yiqi-game="card-sum"] .controls-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
         body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px}
         body[data-yiqi-game="card-sum"] .mode-btn,body[data-yiqi-game="card-sum"] .diff-btn{width:100%;padding:0 8px}
-        body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{margin:8px 0;padding:6px 12px}
+        body[data-yiqi-game="card-sum"] .target-panel{margin:8px 0;padding:6px 12px}
+        body[data-yiqi-game="card-sum"] .quiz-panel{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin:8px 0;padding:6px}
+        body[data-yiqi-game="card-sum"] .quiz-stat{display:flex;min-width:0;min-height:42px;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;border-radius:12px;background:#fff}
+        body[data-yiqi-game="card-sum"] .quiz-stat-label{color:#6e6e73;font-size:12px;font-weight:600}
+        body[data-yiqi-game="card-sum"] .quiz-stat-value{color:#1d1d1f;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
         body[data-yiqi-game="card-sum"] .target-number{background:#fff;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .practice-skip,body[data-yiqi-game="card-sum"] #quizSkipBtn{background:#e9e9ee}
         body[data-yiqi-game="card-sum"] .cards-grid{min-height:96px;margin:10px 0;align-items:center}
@@ -561,7 +566,7 @@
         body[data-yiqi-game="card-sum"] #liveRankCard{padding:10px!important;border-radius:14px!important;background:#fff!important}
         body[data-yiqi-game="card-sum"] .live-rank-title{color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .modal-card h2{font-size:24px}
-        @media(max-width:550px){body[data-yiqi-game="card-sum"] .game-titlebar{margin-bottom:7px}body[data-yiqi-game="card-sum"] .game-kicker{font-size:9px}body[data-yiqi-game="card-sum"] h1.game-title{font-size:24px}body[data-yiqi-game="card-sum"] .quiz-launch{min-height:40px;padding:0 11px;font-size:12px}body[data-yiqi-game="card-sum"] .controls-row{padding:5px}body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{min-height:40px}body[data-yiqi-game="card-sum"] .cards-grid{min-height:78px}body[data-yiqi-game="card-sum"] .operator-row{margin:6px 0}body[data-yiqi-game="card-sum"] .slots-area{min-height:84px;padding:6px}body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:10px}body[data-yiqi-game="card-sum"] footer{display:none}}
+        @media(max-width:550px){body[data-yiqi-game="card-sum"] .game-titlebar{margin-bottom:7px}body[data-yiqi-game="card-sum"] .game-kicker{font-size:9px}body[data-yiqi-game="card-sum"] h1.game-title{font-size:24px}body[data-yiqi-game="card-sum"] .quiz-launch{min-height:40px;padding:0 11px;font-size:12px}body[data-yiqi-game="card-sum"] .controls-row{padding:5px}body[data-yiqi-game="card-sum"] .mode-group,body[data-yiqi-game="card-sum"] .diff-group{min-height:40px}body[data-yiqi-game="card-sum"] .quiz-stat{padding:0 9px}body[data-yiqi-game="card-sum"] .quiz-stat-label{font-size:11px}body[data-yiqi-game="card-sum"] .quiz-stat-value{font-size:15px}body[data-yiqi-game="card-sum"] .cards-grid{min-height:78px}body[data-yiqi-game="card-sum"] .operator-row{margin:6px 0}body[data-yiqi-game="card-sum"] .slots-area{min-height:84px;padding:6px}body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:10px}body[data-yiqi-game="card-sum"] footer{display:none}}
         @media(max-width:370px),(max-height:700px){body[data-yiqi-game="card-sum"] .game-container{padding:9px 8px}body[data-yiqi-game="card-sum"] .game-header{margin-bottom:6px}body[data-yiqi-game="card-sum"] .target-panel,body[data-yiqi-game="card-sum"] .quiz-panel{min-height:44px;margin:5px 0}body[data-yiqi-game="card-sum"] .cards-grid{min-height:72px;margin:5px 0}body[data-yiqi-game="card-sum"] .card{width:52px;height:70px}body[data-yiqi-game="card-sum"] .op-circle{width:40px;height:40px}body[data-yiqi-game="card-sum"] .slots-area{min-height:78px;margin:5px 0}body[data-yiqi-game="card-sum"] .slot{width:46px;height:62px}body[data-yiqi-game="card-sum"] .op-place{width:38px;height:38px}body[data-yiqi-game="card-sum"] .check-btn{min-height:44px}body[data-yiqi-game="card-sum"] .rank-wrapper{margin-top:8px}}
     </style>
 </head>
@@ -590,7 +595,11 @@
     <!-- 单人模式 -->
     <div id="singleZone" class="single-area">
         <div class="target-panel"><span>目标</span><span class="target-number" id="targetNum">14</span><button class="practice-skip" id="skipPractice">换牌</button></div>
-        <div class="quiz-panel" id="quizPanel" style="display: none;"><span>⏱️ <span id="timerDisplay">0</span> s</span><span>✅ <span id="progressCount">0</span>/5</span><button id="quizSkipBtn">⏩ 跳过</button></div>
+        <div class="quiz-panel" id="quizPanel" style="display:none">
+            <span class="quiz-stat"><span class="quiz-stat-label">用时</span><strong class="quiz-stat-value" id="timerDisplay">00:00</strong></span>
+            <span class="quiz-stat"><span class="quiz-stat-label">进度</span><strong class="quiz-stat-value" id="progressCount">0/5</strong></span>
+            <button id="quizSkipBtn">跳过</button>
+        </div>
         <div class="cards-grid" id="cardsGrid"></div>
         <div class="operator-row" id="opsRow"></div>
         <div class="slots-area" id="slotsArea"></div>
@@ -1070,7 +1079,7 @@ window.fetch = function(url, options) {
             if(quizDone>=5) return;
             if(correct) quizCorrect++;
             quizDone++;
-            document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`;
+            document.getElementById("progressCount").innerText = `${quizDone}/5`;
             showMessage("singleMsg", correct?"🎉答对！下一题":"❌答错，下一题", !correct);
             if(quizDone===5){
                 let sec = Math.floor((Date.now()-quizStartTime)/1000);
@@ -1125,9 +1134,10 @@ window.fetch = function(url, options) {
     function doStartQuiz(){
         isQuizMode=true; quizCorrect=0; quizDone=0; quizStartTime=Date.now();
         document.getElementById("quizPanel").style.display="flex";
-        document.getElementById("progressCount").innerText="0/0";
+        document.getElementById("progressCount").innerText="0/5";
+        document.getElementById("timerDisplay").innerText="00:00";
         if(quizTimer) clearInterval(quizTimer);
-        quizTimer = setInterval(()=>{ if(isQuizMode) document.getElementById("timerDisplay").innerText = Math.floor((Date.now()-quizStartTime)/1000); },500);
+        quizTimer = setInterval(()=>{ if(isQuizMode){ const sec=Math.floor((Date.now()-quizStartTime)/1000); document.getElementById("timerDisplay").innerText=`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`; } },500);
         document.getElementById("quizBtn").disabled=false;
         document.getElementById("quizBtn").innerText="结束答题";
         generateSingleGame();
@@ -1419,7 +1429,7 @@ window.fetch = function(url, options) {
     document.getElementById("submitSingle").onclick = onSingleVerify;
     document.getElementById("skipPractice").onclick = ()=>{ if(!isQuizMode){ generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); } };
     document.getElementById("quizBtn").onclick = startQuiz;
-    document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizCorrect}/${quizDone}`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
+    document.getElementById("quizSkipBtn").onclick = ()=>{ if(isQuizMode && quizDone<5){ quizDone++; document.getElementById("progressCount").innerText = `${quizDone}/5`; generateSingleGame(); let need = currentDifficulty==="easy"?2:3; singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null); singleCardData.forEach(c=>c.used=false); renderSingleCards(); renderSingleSlots(); renderOps(); if(quizDone===5) finishQuiz(Math.floor((Date.now()-quizStartTime)/1000)); } };
     
     document.getElementById("modalConfirm").onclick = async ()=>{
         let cls = document.getElementById("classSelect").value;
