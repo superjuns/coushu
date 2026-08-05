@@ -547,6 +547,10 @@
         body[data-yiqi-game="card-sum"] .slots-area{min-height:100px;margin:8px 0;padding:8px;border-radius:18px;background:#f5f5f7}
         body[data-yiqi-game="card-sum"] .slot{border:1px dashed #c7c7cc;border-radius:14px;background:#fff;color:#1d1d1f}
         body[data-yiqi-game="card-sum"] .slot.filled{border:1px solid #a9a9af;background:#fff}
+        body[data-yiqi-game="card-sum"] .slots-area.yiqi-sum-success{animation:yiqi-sum-lock 520ms cubic-bezier(.2,.8,.2,1)}
+        body[data-yiqi-game="card-sum"] .target-number.yiqi-target-success{animation:yiqi-target-pop 520ms cubic-bezier(.2,.8,.2,1)}
+        @keyframes yiqi-sum-lock{0%{transform:scale(.985)}55%{transform:scale(1.018);background:#eaf7ee}100%{transform:scale(1);background:#f5f5f7}}
+        @keyframes yiqi-target-pop{0%{transform:scale(.88)}55%{transform:scale(1.12);color:#34c759}100%{transform:scale(1);color:#1d1d1f}}
         body[data-yiqi-game="card-sum"] .op-place{border-radius:12px;background:#e9e9ee}
         body[data-yiqi-game="card-sum"] .check-btn{width:min(100%,420px);margin:7px auto}
         body[data-yiqi-game="card-sum"] .round-bar{border-radius:16px;background:#1d1d1f}
@@ -928,6 +932,8 @@ window.fetch = function(url, options) {
     }
 
     function generateSingleGame(){
+        document.getElementById("slotsArea")?.classList.remove("yiqi-sum-success");
+        document.getElementById("targetNum")?.classList.remove("yiqi-target-success");
         let diff = currentDifficulty;
         for(let t=0;t<40;t++){
             let newTarget = Math.floor(Math.random()*20)+3;
@@ -1032,18 +1038,34 @@ window.fetch = function(url, options) {
             return step>=0?step:null;
         }
     }
+    function resetSingleBoard(loadNext){
+        let need = currentDifficulty==="easy"?2:3;
+        if(loadNext) generateSingleGame();
+        singleSlots = Array(need).fill(null);
+        singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
+        singleCardData.forEach(c=>c.used=false);
+        renderSingleCards(); renderSingleSlots(); renderOps();
+    }
     function onSingleVerify(){
         let need = currentDifficulty==="easy"?2:3;
         if(singleSlots.filter(s=>s!==null).length !== need){ showMessage("singleMsg","放满算式格",true); return; }
         let res = computeSingle();
         if(res===null){ showMessage("singleMsg","选运算符",true); return; }
         let correct = (res === targetValue);
+        const feedback = window.__yiqiSdkBridge && window.__yiqiSdkBridge.feedback;
+        if (correct) {
+            const slots = document.getElementById("slotsArea");
+            const target = document.getElementById("targetNum");
+            if (slots) { slots.classList.remove("yiqi-sum-success"); void slots.offsetWidth; slots.classList.add("yiqi-sum-success"); }
+            if (target) { target.classList.remove("yiqi-target-success"); void target.offsetWidth; target.classList.add("yiqi-target-success"); }
+            if (feedback) feedback.correct({ result:res, target:targetValue, difficulty:currentDifficulty });
+        } else if (feedback) {
+            feedback.wrong({ result:res, expected:targetValue, difficulty:currentDifficulty });
+        }
         if(!isQuizMode){
             showMessage("singleMsg", correct?"✅正确":"❌错误", !correct);
-            if(correct) generateSingleGame();
-            singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-            singleCardData.forEach(c=>c.used=false);
-            renderSingleCards(); renderSingleSlots(); renderOps();
+            if(correct) setTimeout(()=>resetSingleBoard(true), 520);
+            else resetSingleBoard(false);
         } else {
             if(quizDone>=5) return;
             if(correct) quizCorrect++;
@@ -1052,12 +1074,11 @@ window.fetch = function(url, options) {
             showMessage("singleMsg", correct?"🎉答对！下一题":"❌答错，下一题", !correct);
             if(quizDone===5){
                 let sec = Math.floor((Date.now()-quizStartTime)/1000);
-                finishQuiz(sec);
+                if(correct) setTimeout(()=>finishQuiz(sec), 520);
+                else finishQuiz(sec);
             } else {
-                generateSingleGame();
-                singleSlots = Array(need).fill(null); singleOps = Array(currentDifficulty==="easy"?1:2).fill(null);
-                singleCardData.forEach(c=>c.used=false);
-                renderSingleCards(); renderSingleSlots(); renderOps();
+                if(correct) setTimeout(()=>resetSingleBoard(true), 520);
+                else resetSingleBoard(true);
             }
         }
     }
